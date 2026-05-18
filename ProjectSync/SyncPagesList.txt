@@ -1,0 +1,891 @@
+For Challenge 2 — **AI Service Orchestrator for Informal Economy** — your app should feel like a complete AI-powered service ecosystem, not just a booking app.
+The UI flow should clearly demonstrate:
+
+* user request
+* AI understanding
+* provider matching
+* AI reasoning
+* booking simulation
+* follow-up automation
+* live workflow tracking
+
+Based on the hackathon requirements  and your feature breakdown , here’s the complete page structure with detailed functionality.
+
+---
+
+# USER SIDE PAGES
+
+---
+
+# 1. Splash Screen
+
+## Purpose
+
+Initial branding/loading screen.
+
+## This Page Will Have
+
+1. App logo
+2. App name
+3. Small tagline
+
+   * “AI Powered Local Services”
+4. Loading animation
+5. Background initialization
+
+   * check login state
+   * load saved session
+   * initialize AI agents
+
+## Navigation
+
+* If logged in → Home Page
+* If not logged in → Welcome Page
+
+---
+
+# 2. Welcome / Onboarding Page
+
+## Purpose
+
+Introduce the app and explain what it does.
+
+## This Page Will Have
+
+1. Intro slides
+
+   * Find nearby technicians
+   * AI booking automation
+   * Urdu/Roman Urdu support
+   * Live service tracking
+
+2. Buttons
+
+   * Login
+   * Signup
+   * Continue as Guest
+
+3. Language selection
+
+   * English
+   * Urdu
+
+## Navigation
+
+* Login button → Login Page
+* Signup button → Signup Page
+* Guest → Home Page
+
+---
+
+# 3. Login Page
+
+## Purpose
+
+Allow users to log into their account.
+
+## This Page Will Have
+
+1. Greeting text
+
+   * “Welcome Back”
+
+2. Inputs
+
+   * Phone/email
+   * Password
+
+3. Buttons
+
+   * Login
+   * Continue with Google
+   * Continue with Phone OTP
+
+4. Forgot password button
+
+5. Signup redirect
+
+6. Remember me checkbox
+
+## Functionality
+
+* Validates credentials
+* Creates user session
+* Fetches saved addresses/bookings
+
+## Navigation
+
+* Successful login → Home Page
+* Signup button → Signup Page
+* Forgot password → Reset Password Page
+
+---
+
+# 4. Signup Page
+
+## Purpose
+
+Create a new account.
+
+## This Page Will Have
+
+1. Inputs
+
+   * Full name
+   * Phone number
+   * Email
+   * Password
+
+2. Location permission request
+
+3. Profile image upload
+
+4. Buttons
+
+   * Create account
+   * Login redirect
+
+## Functionality
+
+* Creates user profile
+* Stores user data
+* Saves default location
+
+## Navigation
+
+* Account created → Address Setup Page
+* Login redirect → Login Page
+
+---
+
+# 5. Address Setup Page
+
+## Purpose
+
+Collect exact user location.
+
+## This Page Will Have
+
+1. Map picker
+2. Current location button
+3. Address input
+4. Saved addresses section
+5. Address label
+
+   * Home
+   * Office
+   * Other
+
+## Functionality
+
+* Save precise coordinates
+* Reverse geocoding
+* Store locations in database
+
+## Navigation
+
+* Continue button → Home Page
+
+---
+
+# 6. Home Page
+
+## Purpose
+
+Main dashboard for users.
+
+## This Page Will Have
+
+1. Greeting
+
+   * “Assalamualaikum, Cyrus”
+
+2. Search bar
+
+   * “What service do you need?”
+
+3. Voice input button
+
+4. Quick categories
+
+   * AC Technician
+   * Electrician
+   * Plumber
+   * Beautician
+   * Tutor
+   * Carpenter
+
+5. AI suggestion section
+
+6. Nearby providers preview
+
+7. Recent bookings
+
+8. Emergency services section
+
+9. Bottom navigation
+
+   * Home
+   * Bookings
+   * Chat
+   * Profile
+
+## Functionality
+
+* Accept natural language input
+* AI intent extraction
+* Start provider matching workflow
+
+## Navigation
+
+* Search → AI Processing Page
+* Category tap → Service Request Page
+* Recent booking → Booking Details Page
+
+---
+
+# 7. AI Service Request Page
+
+## Purpose
+
+Collect service request naturally.
+
+## This Page Will Have
+
+1. Chat-like input box
+
+2. Voice recording option
+
+3. Suggested prompts
+
+   * “Mujhe kal electrician chahiye”
+   * “Need AC repair tomorrow”
+   * “Geyser repair in DHA”
+
+4. Uploaded image option
+
+5. Schedule selector
+
+6. Location selector
+
+## Functionality
+
+AI extracts:
+
+* service type
+* time
+* urgency
+* location
+* issue details
+
+## Navigation
+
+* Submit request → AI Processing Page
+
+---
+
+# 8. AI Processing / Agent Workflow Page
+
+## Purpose
+
+Show live AI orchestration.
+
+## This Page Will Have
+
+1. Animated workflow steps
+
+2. Agent cards
+
+   * Intent Agent
+   * Location Agent
+   * Ranking Agent
+   * Booking Agent
+
+3. Live logs
+
+4. AI reasoning section
+
+Example:
+
+* “Detected AC repair request”
+* “Searching nearby providers”
+* “Ranking based on availability”
+
+5. Progress timeline
+
+## Functionality
+
+Simulates:
+
+* Antigravity workflows
+* multi-agent reasoning
+* provider selection logic
+
+## Navigation
+
+* Workflow complete → Provider Recommendation Page
+
+---
+
+# 9. Provider Recommendation Page
+
+## Purpose
+
+Show ranked providers.
+
+## This Page Will Have
+
+1. Top recommended provider card
+2. Provider image
+3. Distance
+4. Ratings
+5. Availability
+6. Specializations
+7. Estimated arrival time
+8. Price estimate
+9. AI reasoning section
+
+Example:
+
+* “Selected because nearest available inverter AC specialist”
+
+10. Alternative providers list
+
+11. Buttons
+
+* Book Now
+* Chat
+* View Profile
+
+## Functionality
+
+* AI ranking
+* comparison logic
+* provider scoring
+
+## Navigation
+
+* Book Now → Booking Confirmation Page
+* View Profile → Provider Details Page
+* Chat → Chat Page
+
+---
+
+# 10. Provider Details Page
+
+## Purpose
+
+Detailed provider information.
+
+## This Page Will Have
+
+1. Provider profile
+2. Shop information
+3. Experience
+4. Skills
+5. Worker specialization list
+6. Ratings/reviews
+7. Portfolio images
+8. Available slots
+9. Service coverage map
+
+## Functionality
+
+* Displays provider data
+* Shows worker capabilities
+
+## Navigation
+
+* Book button → Booking Confirmation Page
+
+---
+
+# 11. Booking Confirmation Page
+
+## Purpose
+
+Simulate actual booking.
+
+## This Page Will Have
+
+1. Service summary
+
+2. Provider details
+
+3. Selected time
+
+4. Address
+
+5. Estimated charges
+
+6. Notes section
+
+7. Buttons
+
+* Confirm Booking
+* Reschedule
+
+## Functionality
+
+Simulates:
+
+* booking creation
+* scheduling
+* provider assignment
+* notification creation
+
+## Navigation
+
+* Confirm → Booking Success Page
+
+---
+
+# 12. Booking Success Page
+
+## Purpose
+
+Show successful booking state.
+
+## This Page Will Have
+
+1. Success animation
+2. Booking ID
+3. Technician assigned
+4. Arrival estimate
+5. Reminder info
+6. Download receipt button
+7. Share booking button
+
+## Functionality
+
+Creates:
+
+* mock receipt
+* booking record
+* reminder schedule
+
+## Navigation
+
+* Track Service → Live Tracking Page
+* Home → Home Page
+
+---
+
+# 13. Live Service Tracking Page
+
+## Purpose
+
+Track service progress.
+
+## This Page Will Have
+
+1. Status timeline
+
+   * Booking confirmed
+   * Worker assigned
+   * Left shop
+   * Arriving soon
+   * Service completed
+
+2. Live map
+
+3. ETA display
+
+4. Provider contact button
+
+5. Chat button
+
+6. Cancel booking button
+
+## Functionality
+
+Simulates:
+
+* real-time updates
+* location tracking
+* notifications
+
+## Navigation
+
+* Chat → Chat Page
+* Completion → Feedback Page
+
+---
+
+# 14. Chat Page
+
+## Purpose
+
+Communication between user and provider.
+
+## This Page Will Have
+
+1. Real-time chat
+2. Image sharing
+3. Voice notes
+4. AI summaries
+5. Suggested replies
+
+## Functionality
+
+* material coordination
+* issue clarification
+* AI summarization
+
+## Navigation
+
+* Back → Previous page
+
+---
+
+# 15. Follow-Up Automation Page
+
+## Purpose
+
+Show AI-generated reminders and automation.
+
+## This Page Will Have
+
+1. Reminder cards
+2. Upcoming appointment alerts
+3. Completion confirmation
+4. Feedback request
+5. Rebooking suggestions
+
+## Functionality
+
+Simulates:
+
+* automated notifications
+* follow-up workflows
+* AI-generated reminders
+
+## Navigation
+
+* Feedback button → Feedback Page
+
+---
+
+# 16. Feedback & Rating Page
+
+## Purpose
+
+Dual rating system.
+
+## This Page Will Have
+
+1. Star rating
+2. Written review
+3. Provider behavior feedback
+4. Customer rating from provider
+5. Issue resolved toggle
+
+## Functionality
+
+* Updates reputation scores
+* Improves ranking algorithm
+
+## Navigation
+
+* Submit → Home Page
+
+---
+
+# 17. Booking History Page
+
+## Purpose
+
+Show past bookings.
+
+## This Page Will Have
+
+1. Previous bookings list
+2. Status labels
+3. Rebook button
+4. Download receipt
+5. View details
+
+## Functionality
+
+* fetch booking history
+* repeat booking workflow
+
+## Navigation
+
+* Booking tap → Booking Details Page
+
+---
+
+# 18. Booking Details Page
+
+## Purpose
+
+Detailed information about one booking.
+
+## This Page Will Have
+
+1. Full booking timeline
+2. Provider details
+3. Payment details
+4. Chat history
+5. Tracking logs
+6. AI workflow logs
+
+## Functionality
+
+Shows:
+
+* complete orchestration trace
+* simulated execution logs
+
+## Navigation
+
+* Rebook → Booking Confirmation Page
+
+---
+
+# 19. Notifications Page
+
+## Purpose
+
+Central notification system.
+
+## This Page Will Have
+
+1. Booking updates
+2. Reminder notifications
+3. AI alerts
+4. Promotional suggestions
+5. Provider responses
+
+## Functionality
+
+* push notification handling
+* notification history
+
+---
+
+# 20. Profile Page
+
+## Purpose
+
+User account management.
+
+## This Page Will Have
+
+1. User information
+2. Saved addresses
+3. Saved payment methods
+4. Language preference
+5. App settings
+6. Logout button
+
+## Functionality
+
+* edit profile
+* manage settings
+
+---
+
+# PROVIDER SIDE PAGES
+
+---
+
+# 21. Provider Login Page
+
+## Purpose
+
+Provider authentication.
+
+## This Page Will Have
+
+1. Shop login
+2. Worker login
+3. OTP verification
+4. Forgot password
+
+## Navigation
+
+* Success → Provider Dashboard
+
+---
+
+# 22. Provider Dashboard
+
+## Purpose
+
+Main provider control center.
+
+## This Page Will Have
+
+1. Active bookings
+2. Pending requests
+3. AI-assigned tasks
+4. Worker availability
+5. Revenue summary
+6. Notifications
+
+## Functionality
+
+* booking management
+* assignment handling
+
+---
+
+# 23. Worker Management Page
+
+## Purpose
+
+Manage technicians/workers.
+
+## This Page Will Have
+
+1. Worker list
+2. Skills/specialization
+3. Availability toggle
+4. Worker ratings
+5. Add/Edit worker button
+
+## Functionality
+
+* specialization tagging
+* worker assignment
+
+---
+
+# 24. Request Details Page
+
+## Purpose
+
+Detailed customer issue view.
+
+## This Page Will Have
+
+1. Customer problem
+2. Images/videos
+3. Required timing
+4. Location map
+5. Suggested materials
+6. AI issue summary
+
+## Functionality
+
+* helps technician prepare
+* material prediction system
+
+---
+
+# 25. Availability Negotiation Page
+
+## Purpose
+
+AI scheduling negotiation simulation.
+
+## This Page Will Have
+
+1. AI chat simulation
+2. Suggested timings
+3. Accept/Reject options
+4. Reschedule workflow
+
+## Functionality
+
+Simulates:
+
+* AI negotiation
+* flexible scheduling
+
+---
+
+# 26. AI Calling Simulation Page
+
+## Purpose
+
+Hackathon demo feature.
+
+## This Page Will Have
+
+1. Simulated Urdu AI call screen
+2. Live transcript
+3. Voice waveform animation
+4. AI-generated responses
+5. Call outcome
+
+## Functionality
+
+Simulates:
+
+* provider calling workflow
+* availability confirmation
+
+---
+
+# 27. Admin / Monitoring Dashboard (Optional but VERY Important)
+
+## Purpose
+
+Best page for hackathon demo.
+
+## This Page Will Have
+
+1. Live system activity
+2. Active AI agents
+3. Workflow logs
+4. Booking analytics
+5. Provider map
+6. AI decisions
+7. Failed workflows
+8. Notification logs
+
+## Functionality
+
+Shows:
+
+* Antigravity orchestration
+* agent traces
+* system-wide monitoring
+
+This page can massively improve your hackathon presentation.
+
+---
+
+# IMPORTANT FLOW OF THE APP
+
+## Main User Flow
+
+Splash
+→ Welcome
+→ Login/Signup
+→ Address Setup
+→ Home
+→ Service Request
+→ AI Processing
+→ Provider Recommendation
+→ Booking Confirmation
+→ Booking Success
+→ Live Tracking
+→ Feedback
+
+---
+
+# MOST IMPORTANT PAGES FOR HACKATHON JUDGING
+
+These pages matter the most because they directly match the challenge requirements:
+
+1. AI Processing Page
+2. Provider Recommendation Page
+3. Booking Confirmation Page
+4. Live Tracking Page
+5. AI Calling Simulation Page
+6. Admin Workflow Dashboard
+
+These pages demonstrate:
+
+* agentic workflows
+* reasoning
+* execution
+* automation
+* system state changes
+* booking simulation
+
+which are explicitly required in the challenge. 

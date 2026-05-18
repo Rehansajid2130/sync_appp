@@ -1,0 +1,51 @@
+“I need an AC technician tomorrow morning in DHA Lahore”
+
+don't just mention dha ask the user about the house no or there address or map pin to know the exact location
+
+is the user have this location permanent or temporary
+
+
+
+The user and the servicers have the rating system to know about what kind of service they are having
+
+The service provide should have a page for there service so that they will know about the client that requested the service 
+
+There should be a mechanism for the client to know about the service provide is coming 
+
+the shop keeper can list there workers with there specialties 
+Shop keeper can debate about the time of availability
+
+We will provide a chatting system for them so that they can discuss about the material that can be arrange before so that the worker don't have to go back to the shop again to waste time
+
+We can also add a functionality for the shop keeper to refer another shop keeper if they don't have the time or material
+
+We can make a functionality to call the shop using Urdu language which set the date and time cause app the map locations have there number in there details 
+which can be very helpful for this 
+
+Hamo - Home Service & House Work App UI Kit
+https://www.figma.com/community/file/1215927873129539867/hamo-home-service-house-work-app-ui-kit
+
+HelperHive - Home Service Mobile App UI Kit
+https://www.figma.com/community/file/1453364744218129772/helperhive-home-service-mobile-app-ui-kit
+
+Housify - Home Service Mobile App - On demand Home Service App - Cleaning, Vehicle & Painting UI Kit
+https://www.figma.com/community/file/1495379562653488933/housify-home-service-mobile-app-on-demand-home-service-app-cleaning-vehicle-painting-ui-kit
+
+resources websites 
+https://coolors.co/0e3b43-357266-a3bbad-65532f-312509
+https://colorhunt.co/
+https://undraw.co/search/service
+
+Google map place api
+https://developers.google.com/maps/documentation/places/web-service
+all the apis 
+https://developers.google.com/maps/apis-by-platform
+
+data-ai-analyze-
+
+
+What if we make a mic button that will listen to Punjabi or Urdu and analyze what was said and do the thing like the provider will say like (aahh ali haga aee ac da kam karda ac de gas pipe set krda) the ai will reconize it as ali is a worker and it's speciality is ac technician
+
+
+
+

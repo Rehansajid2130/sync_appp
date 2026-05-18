@@ -1,0 +1,116 @@
+
+================================================================================
+HELPERHIVE DESIGN SYSTEM SPECIFICATION - FULL REVERSE ENGINEERING
+================================================================================
+
+1. GENERAL OVERVIEW
+-------------------
+App Category: Home Services Marketplace (Handyman, Cleaning, etc.)
+Overall Design Style: Modern SaaS / Mobile-First Clean Aesthetic.
+Key Visual Attributes: 
+- High-quality 3D/Isometric illustrations.
+- Soft UI: Heavy corner rounding (up to 32px) and subtle depth.
+- Vibrant Green-centric branding to promote trust and success.
+
+Primary Sections:
+- Onboarding & Auth (Login, Signup, Reset).
+- Discovery & Search (Map View, Category Grids, Results).
+- Booking Flow (Service Detail, Scheduling, Checkout).
+- Management (My Bookings, E-Receipts, Messaging).
+- Account (Profile, Privacy, Security).
+
+2. LAYOUT & SPACING
+-------------------
+Grid System: 8px incremental spacing scale.
+- Screen Side Margins: 20px (Tailwind px-5).
+- Section Gaps: 24px - 32px (space-y-6 or space-y-8).
+- Card Internal Padding: 16px (p-4).
+- Component Gaps: 8px - 12px (gap-2 or gap-3).
+
+Common Dimensions:
+- Primary Button Height: 52px.
+- Navigation Bar Height: 72px - 80px.
+- Card Border Radius: 16px - 24px.
+- Bottom Sheet Radius: 32px (Top-only).
+
+3. COLOR PALETTE EXTRACTION
+---------------------------
+LIGHT MODE (DEFAULT)
+- Primary (Brand Green): #34A853
+- Secondary (Mint): #E8F5E9
+- Background: #FFFFFF
+- Surface (Cards/Inputs): #F9FAFB
+- Text Primary: #111827
+- Text Secondary: #4B5563
+- Text Muted: #9CA3AF
+- Status (Negative): #EF4444
+- Status (Warning): #F59E0B
+
+DARK MODE (OLED OPTIMIZED)
+- Background: #111827
+- Surface (Cards/Items): #1F2937
+- Border/Dividers: #374151
+- Text Primary: #F9FAFB
+- Text Secondary: #D1D5DB
+- Text Muted: #9CA3AF
+
+4. TYPOGRAPHY ANALYSIS
+----------------------
+Font Family: Inter or Plus Jakarta Sans.
+- Hero Heading: 24px | Bold (700) | -0.02em tracking.
+- Section Title: 18px | Semi-Bold (600).
+- Body Text: 14px or 16px | Regular (400) | 1.5 line-height.
+- Labels/Captions: 12px | Medium (500).
+- Input Placeholder: 14px | Light/Muted.
+
+5. COMPONENT BREAKDOWN
+----------------------
+BUTTONS:
+- Primary: Full-width, #34A853 fill, white text, rounded-full or 32px radius.
+- Secondary: #E8F5E9 fill, #34A853 text.
+- Icon Buttons: 44px square target, outline or ghost style.
+
+INPUTS:
+- Layout: 12px-16px radius, #F9FAFB fill (Light) or #1F2937 (Dark).
+- States: Focus (Brand Green border), Error (System Red border).
+
+DISCOVERY & SEARCH:
+- Map Pin: Custom SVG marker in Brand Green.
+- Map Carousel: Horizontal scroll with snap-center alignment.
+- Range Slider: Dual-thumb, #34A853 active track, light gray inactive track.
+- Rating System: 5-star Amber fill, text label for numeric value.
+
+MESSAGING:
+- Sent Bubble: #34A853 background, white text, top-right sharp corner (tail).
+- Received Bubble: Surface-level gray background, dark text.
+
+6. FRONTEND IMPLEMENTATION GUIDE
+--------------------------------
+TAILWIND CONFIG SUGGESTION:
+colors: {
+  hiveGreen: { light: '#E8F5E9', DEFAULT: '#34A853', dark: '#065F46' },
+  darkBase: '#111827',
+  darkSurface: '#1F2937',
+},
+borderRadius: {
+  'hive-card': '24px',
+  'hive-sheet': '32px',
+}
+
+CSS VARIABLE STRATEGY:
+--bg: var(--light-bg);
+--text: var(--light-text);
+[data-theme='dark'] {
+  --bg: #111827;
+  --surface: #1f2937;
+  --text: #f9fafb;
+}
+
+7. ACCESSIBILITY & UX
+---------------------
+- Minimum Touch Target: 44px.
+- Reading Pattern: F-pattern on dashboards, single-column linear for booking.
+- Visual Feedback: Subtle scale(0.98) on button press, backdrop-blur for modals.
+- Contrast: WCAG AA compliance (4.5:1) for primary text on backgrounds.
+
+================================================================================
