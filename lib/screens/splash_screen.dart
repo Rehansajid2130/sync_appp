@@ -49,15 +49,13 @@ class _SplashScreenState extends State<SplashScreen>
 
     if (!mounted) return;
 
+    // Force sign out on startup for testing (as requested by user)
+    await AuthService.signOut();
+
     // 1. Try to restore a saved login session
     final user = await AuthService.restoreSession();
 
     if (user != null) {
-      // Sync the restored user into MockData
-      MockData.currentUserName = user.name;
-      MockData.currentUserEmail = user.email;
-      MockData.isUserRegisteredAsProvider = user.isProvider;
-
       if (!mounted) return;
       if (user.isProvider) {
         final activeRole = StorageService.getData('activeRole') ?? 'Provider';
@@ -72,7 +70,8 @@ class _SplashScreenState extends State<SplashScreen>
             ),
           );
         } else {
-          final hasListing = MockData.providers.any((p) => p.id == user.uid || p.name == user.name);
+          // Check if provider storefront exists
+          final hasListing = MockData.providers.any((p) => p.id == user.uid);
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -96,18 +95,11 @@ class _SplashScreenState extends State<SplashScreen>
       return;
     }
 
-    // 2. No session — show onboarding only if first time, otherwise force login
-    if (StorageService.isFirstTime()) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const OnboardingScreen()),
-      );
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const NewAuthScreen()),
-      );
-    }
+    // 2. No session — show auth screen (login/signup)
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const NewAuthScreen()),
+    );
   }
 
   @override

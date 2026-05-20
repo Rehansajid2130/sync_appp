@@ -1,0 +1,8 @@
+- [x] Update `ServiceProvider` data model in `lib/models/service_provider.dart` to support bio and experience fields.
+- [x] Add provider registration/saving capability and dynamic booking names in `lib/core/data/mock_data.dart`.
+- [x] Update role checking and bootstrapping logic in `lib/screens/splash_screen.dart`.
+- [x] Update active role tracking in login, signup, and social sign-in in `lib/screens/new_ui/new_auth_screen.dart`.
+- [x] Implement clean replacement routing and active role switching in `lib/screens/new_ui/new_profile_settings_screen.dart`.
+- [x] Save new storefront registration and route directly to Provider navigation in `lib/screens/provider/provider_setup_screen.dart`.
+- [x] Dynamically retrieve storefront profile details and reset active role to Client in `lib/screens/provider/provider_storefront_screen.dart`.
+- [x] Load and save updated details dynamically in `lib/screens/provider/edit_business_profile_screen.dart`.

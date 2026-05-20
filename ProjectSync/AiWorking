@@ -1,0 +1,938 @@
+# HelperHive AI Conversational Booking Screen
+## Full Frontend + Backend Architecture Instructions
+
+Build a premium AI-powered conversational service booking screen in Flutter.
+
+The experience should feel like:
+- ChatGPT
+- Claude AI conversational UI
+- Uber service booking
+- Google Maps integration
+- Modern AI-native marketplace
+
+The application is NOT a traditional marketplace app.
+
+The core experience is:
+> AI conversational orchestration for local services.
+
+---
+
+# CORE UX PRINCIPLE
+
+The chat NEVER ends.
+
+The AI continuously:
+- understands the request
+- extracts booking information
+- asks only missing questions
+- searches nearby providers
+- updates provider recommendations
+- updates map pins
+- manages booking flow
+
+The AI acts like:
+> a live intelligent booking assistant.
+
+---
+
+# MAIN SCREEN STRUCTURE
+
+The screen contains:
+
+1. Header
+2. Dynamic Map Section
+3. Conversational Chat Area
+4. Inline Provider Cards
+5. Bottom Prompt Input
+6. Bottom Navigation
+
+---
+
+# 1. HEADER SECTION
+
+Top section similar to modern marketplace apps.
+
+Contains:
+- User avatar
+- Greeting text
+- Location selector
+- Search icon
+- Notification icon
+
+Design:
+- Rounded modern UI
+- Soft shadows
+- Green accent color
+- Minimal clean spacing
+
+Example:
+Hello Fajar 👋
+Lahore, Pakistan
+
+---
+
+# 2. DYNAMIC MAP SECTION
+
+IMPORTANT:
+The map MUST NOT show initially.
+
+The map ONLY appears when:
+- AI has collected enough information
+- AI has found providers
+- Provider cards are generated
+
+Initial State:
+- No map visible
+
+After successful provider search:
+- map appears above chat
+- nearby providers shown as pins
+- selected provider highlighted
+- route line shown after provider selection
+
+Map behavior:
+- animated appearance
+- expandable container
+- smooth transitions
+- floating map style selector
+
+Map styles:
+- Apple Style
+- Dark AI
+- Google Maps
+- Soft Green
+
+Map displays:
+- customer location
+- provider locations
+- ETA routes
+- selected provider highlight
+
+DO NOT show the map before providers are found.
+
+---
+
+# 3. CONVERSATIONAL AI CHAT SYSTEM
+
+The main experience is a ChatGPT-style AI chat.
+
+The AI:
+- receives user requests
+- extracts intent
+- updates booking state
+- asks follow-up questions
+- shows orchestration states
+- injects provider cards into chat
+
+The AI must feel:
+- intelligent
+- conversational
+- premium
+- human-like
+
+---
+
+# CHAT MESSAGE TYPES
+
+Support:
+- User messages
+- AI messages
+- AI orchestration states
+- Provider card groups
+- Booking confirmation messages
+
+---
+
+# AI ORCHESTRATION STATES
+
+While searching:
+show animated orchestration steps.
+
+Examples:
+- Understanding request...
+- Extracting location...
+- Searching nearby providers...
+- Checking availability...
+- Ranking providers...
+
+Show:
+- animated icons
+- progress indicators
+- conversational status
+
+---
+
+# IMPORTANT AI BEHAVIOR
+
+The AI should NEVER ask unnecessary questions.
+
+The AI must dynamically detect:
+- what information already exists
+- what information is missing
+
+Example:
+
+User:
+"Need a plumber in DHA tomorrow at 2 PM"
+
+AI already has:
+- service
+- location
+- time
+
+Missing:
+- exact address
+
+AI asks ONLY:
+"Which phase and street?"
+
+NOT ALL QUESTIONS.
+
+---
+
+# REQUIRED BOOKING FIELDS
+
+AI should collect:
+
+Required:
+- service type
+- complete address
+- date/time
+
+Optional:
+- issue description
+- urgency
+- issue images
+- voice notes
+- preferred provider
+
+---
+
+# BOOKING STATE SYSTEM
+
+The AI must maintain a persistent booking state object.
+
+Example:
+
+```json
+{
+  "service": "plumber",
+  "address": {
+    "area": "DHA",
+    "phase": "6",
+    "street": "12"
+  },
+  "date": "Tomorrow",
+  "time": "2 PM",
+  "issue": "Water leakage"
+}
+
+This booking state must persist across the conversation.
+
+The chat must NEVER lose context.
+
+4. PROVIDER SEARCH SYSTEM
+
+ONLY trigger provider search when:
+
+required booking information is complete
+
+DO NOT search providers before enough data exists.
+
+After successful search:
+
+AI message appears
+provider cards injected
+map becomes visible
+provider pins appear
+5. PROVIDER CARDS
+
+Provider cards appear inline inside the AI conversation.
+
+Cards should feel similar to Claude AI inline artifacts.
+
+Each provider card contains:
+
+provider image
+provider/shop name
+rating
+distance
+ETA
+availability status
+price estimate
+AI match reason
+View button
+
+Example:
+
+━━━━━━━━━━
+FixPro Plumbing
+⭐ 4.9
+📍 1.2 km
+🕒 25 mins away
+
+Best match for urgent plumbing issue
+
+Starting from $20
+
+[ View Shop ]
+━━━━━━━━━━
+
+Design:
+
+rounded corners
+soft shadows
+premium spacing
+floating card effect
+CARD CLICK BEHAVIOR
+
+Provider cards are clickable.
+
+When clicked:
+
+Open provider storefront screen
+Highlight provider on map
+Show route direction
+Create booking draft
+Continue AI conversation
+6. PROVIDER STOREFRONT SCREEN
+
+The storefront screen contains:
+
+provider profile
+shop information
+reviews
+gallery
+completed jobs
+workers
+certifications
+live location
+estimated arrival
+booking button
+7. POST-SELECTION AI FLOW
+
+After provider selection:
+the AI conversation continues.
+
+The AI asks ONLY missing details.
+
+Examples:
+
+upload issue image
+voice note
+issue description
+special instructions
+
+If information already exists:
+DO NOT ask again.
+
+EXAMPLE FULL FLOW
+FLOW 1
+
+User:
+"Need plumber tomorrow"
+
+AI:
+"What area should the plumber visit?"
+
+User:
+"DHA phase 6"
+
+AI:
+"Can you share street or house number?"
+
+User:
+"Street 12"
+
+AI:
+"I found 3 nearby plumbers available tomorrow."
+
+Then:
+
+provider cards appear
+map appears
+provider pins shown
+8. MAP + PROVIDER SYNCHRONIZATION
+
+The map must sync with:
+
+provider cards
+provider selection
+booking state
+
+When provider selected:
+
+selected provider glows
+route line appears
+ETA displayed
+9. BOTTOM INPUT AREA
+
+Bottom area contains:
+
+rounded AI prompt input
+attachment button
+voice button
+send button
+
+Placeholder:
+"Describe your issue..."
+
+10. BOTTOM NAVIGATION
+
+Bottom tabs:
+
+Home
+Bookings
+Chat
+Calendar
+Profile
+
+Behavior:
+
+auto hide while typing
+reappear when idle
+DESIGN SYSTEM
+
+Theme:
+
+Soft UI + modern SaaS
+AI-native experience
+Rounded corners (24px–32px)
+Green accent color (#34A853)
+Modern typography
+Minimal layout
+Floating cards
+Glassmorphism elements
+
+Support:
+
+Light mode
+Dark mode
+ANIMATIONS
+
+Use smooth animations for:
+
+AI typing
+orchestration states
+map appearance
+provider card appearance
+route transitions
+button states
+FLUTTER REQUIREMENTS
+
+Use:
+
+Flutter
+Material 3
+Riverpod
+go_router
+flutter_animate
+google_maps_flutter
+BACKEND ARCHITECTURE
+
+IMPORTANT:
+This is NOT a simple chatbot.
+
+Build:
+
+conversational booking orchestration engine
+
+BACKEND FLOW
+
+User Message
+↓
+Intent Extraction
+↓
+Booking State Update
+↓
+Missing Field Detection
+↓
+Question OR Provider Search
+↓
+Provider Ranking
+↓
+Map Data Generation
+↓
+Provider Cards Response
+↓
+Booking Draft
+↓
+Booking Confirmation
+
+REQUIRED BACKEND MODULES
+Conversation Manager
+Intent Extraction Engine
+Booking State Manager
+Missing Field Detector
+Provider Matching Engine
+Provider Ranking System
+Maps & Routing Service
+Booking Manager
+PROVIDER SEARCH LOGIC
+
+Search providers using:
+
+service type
+distance
+availability
+ETA
+ratings
+active workers
+
+Rank providers using:
+
+nearest distance
+best rating
+availability
+response speed
+IMPORTANT RULES
+
+DO:
+
+keep chat continuous
+preserve booking context
+ask only missing questions
+show cards inline in chat
+show map ONLY after providers exist
+
+DO NOT:
+
+show map immediately
+restart conversation
+ask repeated questions
+use traditional search flow
+show static marketplace layout
+FINAL PRODUCT GOAL
+
+The final experience should feel like:
+
+an intelligent AI concierge for local services
+
+NOT:
+
+a normal booking marketplace
+
+continue
+# FRONTEND STATE MANAGEMENT ARCHITECTURE
+
+The frontend should NOT behave like:
+- static pages
+- independent widgets
+- isolated screens
+
+Everything should be connected to:
+> one live conversational state.
+
+---
+
+# GLOBAL APP STATES
+
+The app should manage these main states:
+
+## 1. Conversation State
+
+Stores:
+- messages
+- AI responses
+- orchestration states
+- provider card groups
+- selected provider
+- typing states
+
+Example:
+
+```dart
+class ConversationState {
+  List<Message> messages;
+  bool aiTyping;
+  bool searchingProviders;
+  bool mapVisible;
+}
+2. Booking State
+
+Stores extracted booking information.
+
+Example:
+
+class BookingState {
+  String? service;
+  String? area;
+  String? phase;
+  String? street;
+  String? date;
+  String? time;
+  String? issueDescription;
+  List<String>? images;
+}
+
+This state persists throughout the conversation.
+
+3. Provider State
+
+Stores:
+
+nearby providers
+selected provider
+provider rankings
+ETA information
+
+Example:
+
+class ProviderState {
+  List<Provider> nearbyProviders;
+  Provider? selectedProvider;
+}
+4. Map State
+
+Controls:
+
+visibility
+pins
+routes
+selected provider pin
+map style
+
+Example:
+
+class MapState {
+  bool visible;
+  List<MapPin> pins;
+  Polyline? route;
+  int selectedMapStyle;
+}
+
+IMPORTANT:
+Map visibility = FALSE initially.
+
+ONLY TRUE when:
+
+providers exist
+FRONTEND MESSAGE FLOW
+STEP 1 → USER SENDS MESSAGE
+
+Frontend:
+
+appends user message to chat
+shows AI typing state
+sends request to backend
+
+Example:
+
+sendMessage("Need plumber tomorrow");
+STEP 2 → BACKEND RESPONSE
+
+Backend returns one of:
+
+Question
+Orchestration state
+Provider cards
+Booking confirmation
+Error message
+STEP 3 → UI REACTION
+
+Depending on response:
+
+IF QUESTION
+
+Render:
+
+AI bubble only
+
+Example:
+"Which area should the plumber visit?"
+
+IF PROVIDERS FOUND
+
+Render:
+
+orchestration animation
+provider cards
+map
+provider pins
+MAP DISPLAY LOGIC (IMPORTANT)
+
+The map should ONLY appear after:
+
+required fields complete
+AND
+providers found
+
+NOT BEFORE.
+
+CORRECT MAP FLOW
+Initial App State
+Chat only
+No map
+No cards
+During Question Flow
+Chat continues
+Still no map
+After Providers Found
+Map animates in
+Provider pins appear
+Cards injected
+
+This creates:
+
+cleaner UX
+less visual clutter
+more AI-native feel
+AI DECISION ENGINE
+
+The AI should follow this logic:
+
+Receive User Message
+↓
+Extract Information
+↓
+Update Booking State
+↓
+Check Missing Fields
+↓
+If Missing:
+    Ask Question
+Else:
+    Search Providers
+REQUIRED FIELD VALIDATION
+
+Provider search CANNOT happen until:
+
+Required:
+
+service type
+full address/location
+booking time/date
+
+If ANY missing:
+
+AI asks follow-up question
+ADDRESS VALIDATION LOGIC
+
+Example:
+
+User:
+"DHA"
+
+INVALID.
+
+AI should ask:
+
+phase
+street
+house number OR nearby landmark
+
+Valid example:
+
+{
+  "area": "DHA",
+  "phase": "6",
+  "street": "12"
+}
+
+ONLY THEN:
+
+providers searched
+PROVIDER MATCHING ENGINE
+
+When required fields complete:
+
+Backend performs:
+
+Location radius search
+Service filtering
+Availability filtering
+ETA calculation
+Rating ranking
+Distance ranking
+
+Then returns:
+
+providers
+map coordinates
+ETA data
+PROVIDER CARD INJECTION
+
+Provider cards should appear:
+
+inside conversation
+not separate page
+not bottom sheet
+not marketplace grid
+
+The cards should feel:
+
+conversational
+
+Similar to:
+
+Claude AI artifacts
+ChatGPT inline UI blocks
+PROVIDER CARD INTERACTION
+
+When user taps provider:
+
+Frontend should:
+
+Highlight provider card
+Update map route
+Animate selected pin
+Open storefront screen
+Continue AI conversation
+STORE SCREEN FLOW
+
+The storefront screen is NOT separate from AI.
+
+The AI conversation context remains alive.
+
+Example:
+
+User opens:
+FixPro Plumbing
+
+AI still active:
+"Would you like to upload an image of the issue before booking?"
+
+BOOKING CONFIRMATION FLOW
+
+After provider selection:
+
+AI checks:
+What information is missing?
+
+Examples:
+
+issue image
+issue details
+special instructions
+
+Then:
+
+create booking draft
+confirm booking
+BOOKING DRAFT OBJECT
+
+Example:
+
+{
+  "providerId": "provider_123",
+  "customerId": "customer_1",
+  "service": "Plumber",
+  "address": {
+    "area": "DHA",
+    "phase": "6",
+    "street": "12"
+  },
+  "time": "Tomorrow 2 PM",
+  "issue": "Water leakage",
+  "status": "draft"
+}
+REALTIME CHAT BEHAVIOR
+
+The AI should feel alive.
+
+Support:
+
+typing indicators
+orchestration animations
+streaming responses
+card appearance animations
+realtime map updates
+RECOMMENDED UI ANIMATIONS
+
+Use:
+
+fade transitions
+slide up cards
+map expansion animation
+typing dots
+glowing active pins
+smooth route animations
+SUGGESTED FOLDER STRUCTURE
+lib/
+│
+├── core/
+├── models/
+├── providers/
+├── services/
+├── screens/
+├── widgets/
+├── repositories/
+├── animations/
+├── map/
+├── booking/
+└── chat/
+IMPORTANT FLUTTER WIDGETS
+
+Use reusable widgets:
+
+Chat Widgets
+AiBubble
+UserBubble
+TypingBubble
+OrchestrationWidget
+Provider Widgets
+ProviderCard
+ProviderCardList
+Map Widgets
+DynamicMap
+ProviderPin
+RouteOverlay
+AI MESSAGE TYPES
+
+Create enum:
+
+enum MessageType {
+  user,
+  ai,
+  orchestration,
+  providerCards,
+  bookingConfirmation,
+}
+RECOMMENDED API RESPONSE FORMAT
+
+Example:
+
+{
+  "type": "providerCards",
+  "message": "I found 3 nearby plumbers.",
+  "providers": [],
+  "mapPins": [],
+  "showMap": true
+}
+IMPORTANT UX RULES
+
+DO:
+
+keep everything conversational
+animate transitions
+preserve context
+minimize friction
+ask smart questions
+reveal UI progressively
+
+DO NOT:
+
+overload screen immediately
+show empty maps
+restart flows
+ask fixed form questions
+break conversational immersion
+FINAL EXPERIENCE GOAL
+
+The app should feel like:
+
+“AI concierge that intelligently manages local services through natural conversation.”
+
+The customer should feel:
+
+guided
+understood
+assisted
+never confused
+
+The entire experience should feel:
+
+intelligent
+premium
+conversational
+alive

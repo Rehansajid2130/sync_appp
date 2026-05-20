@@ -1,0 +1,67 @@
+# Implementation Plan - Fix Provider Main Screen and Role Switching (Updated)
+
+This plan addresses:
+1. The issue where service providers are shown the customer screen.
+2. The issue where providers are repeatedly asked to enter their business/shop setup details every time they switch roles or start the app.
+3. The dynamic profile updates in the Edit Storefront and Provider Storefront screens.
+
+## Proposed Changes
+
+We will introduce a persisted active role (`activeRole` in SharedPreferences via `StorageService`) and implement full registration of provider storefront listings into `MockData.providers` so that the app remembers that a user has already created a provider shop.
+
+### 1. Model Updates
+
+#### [MODIFY] [service_provider.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/models/service_provider.dart)
+- Update `ServiceProvider` to include `description` (String) and `experience` (int) fields.
+- Update `toJson()` and `fromJson()` to handle serialization of these new fields.
+
+### 2. Core Services & Data
+
+#### [MODIFY] [mock_data.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/core/data/mock_data.dart)
+- Update `_getSeedPendingBookings()` to dynamically assign bookings to `currentUserName` instead of hardcoding `'James Anderson'`. This ensures that a newly registered provider immediately sees job requests on their dashboard.
+- Add `static Future<void> registerProvider(ServiceProvider provider)` to save/update a provider listing.
+- Update `_getSeedProviders()` to provide default empty descriptions and 5 years experience for compatibility.
+
+### 3. Navigation & Authentication Screens
+
+#### [MODIFY] [splash_screen.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/screens/splash_screen.dart)
+- Update `_bootstrap()` to read the persisted `activeRole` from `StorageService`.
+- If the active role is `'Customer'`, route to `NewNavigationWrapper()`.
+- If the active role is `'Provider'` and the user is a provider, check `hasListing` in `MockData.providers`. If true, route to `ProviderNavigationScreen`, otherwise route to `ProviderSetupScreen`.
+
+#### [MODIFY] [new_auth_screen.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/screens/new_ui/new_auth_screen.dart)
+- Upon successful login or signup as a provider, set the active role to `'Provider'` in `StorageService`.
+- Upon login/signup as a customer, set the active role to `'Customer'` in `StorageService`.
+
+#### [MODIFY] [new_profile_settings_screen.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/screens/new_ui/new_profile_settings_screen.dart)
+- In the `provider_switch` handler, save `'Provider'` as the active role in `StorageService`.
+- Use `Navigator.pushReplacement()` instead of `Navigator.push()` to cleanly swap out the bottom navigation navigation stack.
+
+### 4. Provider Screens
+
+#### [MODIFY] [provider_setup_screen.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/screens/provider/provider_setup_screen.dart)
+- Map category strings to their corresponding icons.
+- Instantiate a `ServiceProvider` with the user's business details, entered category, and description.
+- Register the new provider storefront in `MockData.providers` using `MockData.registerProvider(...)` so they are saved to the persistent database/mock store.
+- Set the active role to `'Provider'` in `StorageService`.
+- Route the user to `ProviderNavigationScreen()` instead of `NewNavigationWrapper()`.
+
+#### [MODIFY] [provider_storefront_screen.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/screens/provider/provider_storefront_screen.dart)
+- Retrieve the logged-in provider's storefront details dynamically from `MockData.providers`.
+- Replace hardcoded storefront details (Business Name, Biography, Years of Experience, Category, Rating, Jobs Done) with dynamic fields from the provider profile.
+- In the "Switch to Client Mode" handler, update the active role to `'Customer'` in `StorageService` before restarting/rebooting to `SplashScreen`.
+
+#### [MODIFY] [edit_business_profile_screen.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/screens/provider/edit_business_profile_screen.dart)
+- Load the current provider's details into the text controllers dynamically on init (instead of hardcoding `'James Anderson'`).
+- In the `_save()` action, instantiate the updated `ServiceProvider` and call `MockData.registerProvider(...)` to update the persistent store.
+
+## Verification Plan
+
+### Manual Verification
+1. Register/Login as a Customer -> Verify that you see the client dashboard screen.
+2. Go to Settings -> Switch to Provider (new provider) -> Verify that `ProviderSetupScreen` is shown.
+3. Complete setup and tap "Launch Business" -> Verify that you are taken directly to the **Provider Dashboard Screen** (instead of the customer screen).
+4. Tap "Profile" -> Verify your entered Business Name, Description, Category are displayed.
+5. Tap "Edit Storefront" -> Update Business Name and biography -> Save -> Verify that storefront updates immediately.
+6. Tap "Switch to Client Mode" on the Provider Profile tab -> Verify that the app reboots into the **Customer Dashboard**.
+7. Go to Settings -> Switch to Provider -> Verify that it takes you **directly** to the Provider Dashboard/Storefront (does NOT ask for shop details again).

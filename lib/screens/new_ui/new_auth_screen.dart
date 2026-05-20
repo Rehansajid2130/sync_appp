@@ -8,6 +8,7 @@ import 'new_navigation_wrapper.dart';
 import '../address_setup_screen.dart';
 import '../provider/provider_setup_screen.dart';
 import '../provider/provider_navigation_screen.dart';
+import '../create_new_password_screen.dart';
 
 class NewAuthScreen extends StatefulWidget {
   const NewAuthScreen({super.key});
@@ -26,12 +27,14 @@ class _NewAuthScreenState extends State<NewAuthScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     _nameController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -51,17 +54,11 @@ class _NewAuthScreenState extends State<NewAuthScreen> {
       if (!mounted) return;
 
       if (result.success && result.user != null) {
-        MockData.currentUserName = result.user!.name;
-        MockData.currentUserEmail = result.user!.email;
-        MockData.isUserRegisteredAsProvider = result.user!.isProvider;
-
-        await MockData.init();
-
         if (!mounted) return;
 
         if (result.user!.isProvider) {
           await StorageService.saveData('activeRole', 'Provider');
-          final hasListing = MockData.providers.any((p) => p.id == result.user!.uid || p.name == result.user!.name);
+          final hasListing = MockData.providers.any((p) => p.id == result.user!.uid);
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -96,17 +93,26 @@ class _NewAuthScreenState extends State<NewAuthScreen> {
         });
         return;
       }
+      if (_phoneController.text.trim().isEmpty) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = "Please enter your phone number so users can contact you.";
+        });
+        return;
+      }
       
       final result = await AuthService.signUp(
         name: _nameController.text,
         email: _emailController.text,
         password: _passwordController.text,
+        phone: _phoneController.text,
         isProvider: _isProvider,
       );
 
       if (!mounted) return;
 
       if (result.success && result.user != null) {
+        // Automatically login after signup
         final loginResult = await AuthService.signIn(
           email: _emailController.text,
           password: _passwordController.text,
@@ -114,18 +120,8 @@ class _NewAuthScreenState extends State<NewAuthScreen> {
 
         if (!mounted) return;
 
-        if (loginResult.success && loginResult.user != null) {
-          MockData.currentUserName = loginResult.user!.name;
-          MockData.currentUserEmail = loginResult.user!.email;
-          MockData.isUserRegisteredAsProvider = loginResult.user!.isProvider;
-        }
-
-        await MockData.init();
-
-        if (!mounted) return;
-
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text("Account created successfully!"),
             backgroundColor: AppColors.secondaryGreen,
           ),
@@ -153,41 +149,21 @@ class _NewAuthScreenState extends State<NewAuthScreen> {
     }
   }
 
-  Future<void> _handleSocialAuth(String provider) async {
-    setState(() {
-      _errorMessage = null;
-      _isLoading = true;
-    });
-
-    final result = await AuthService.signInWithSocial(provider: provider);
-
-    if (!mounted) return;
-
-    if (result.success && result.user != null) {
-      MockData.currentUserName = result.user!.name;
-      MockData.currentUserEmail = result.user!.email;
-      MockData.isUserRegisteredAsProvider = result.user!.isProvider;
-
-      await MockData.init();
-
-      if (!mounted) return;
-
-      await StorageService.saveData('activeRole', 'Customer');
-      final hasAddress = MockData.addresses.isNotEmpty;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => hasAddress 
-              ? const NewNavigationWrapper() 
-              : const AddressSetupScreen(),
-        ),
-      );
-    } else {
+  Future<void> _handleForgotPassword() async {
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
       setState(() {
-        _isLoading = false;
-        _errorMessage = result.message;
+        _errorMessage = "Please enter your email to reset the password.";
       });
+      return;
     }
+    
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CreateNewPasswordScreen(email: email),
+      ),
+    );
   }
 
   @override
@@ -214,13 +190,12 @@ class _NewAuthScreenState extends State<NewAuthScreen> {
               ),
               child: Stack(
                 children: [
-                  // Vector Illustration Pattern
                   Positioned(
                     right: -20,
                     top: 20,
                     child: Opacity(
                       opacity: 0.12,
-                      child: Icon(
+                      child: const Icon(
                         Icons.insights_outlined,
                         size: 280,
                         color: Colors.white,
@@ -232,14 +207,13 @@ class _NewAuthScreenState extends State<NewAuthScreen> {
                     bottom: 70,
                     child: Opacity(
                       opacity: 0.1,
-                      child: Icon(
+                      child: const Icon(
                         Icons.auto_awesome,
                         size: 90,
                         color: Colors.white,
                       ),
                     ),
                   ),
-                  // App branding & Welcome Message
                   Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -338,7 +312,6 @@ class _NewAuthScreenState extends State<NewAuthScreen> {
                           ),
                           const SizedBox(height: 28),
 
-                          // Full registration name field if sign-up mode
                           if (!_isLoginMode) ...[
                             _buildInputField(
                               controller: _nameController,
@@ -347,9 +320,15 @@ class _NewAuthScreenState extends State<NewAuthScreen> {
                               isDark: isDark,
                             ),
                             const SizedBox(height: 16),
+                            _buildInputField(
+                              controller: _phoneController,
+                              hintText: "Phone Number",
+                              prefixIcon: Icons.phone_outlined,
+                              isDark: isDark,
+                            ),
+                            const SizedBox(height: 16),
                           ],
 
-                          // Email Field Specs (TextFormField)
                           _buildInputField(
                             controller: _emailController,
                             hintText: "Email Address",
@@ -358,7 +337,6 @@ class _NewAuthScreenState extends State<NewAuthScreen> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Password Field Specs (TextFormField)
                           _buildInputField(
                             controller: _passwordController,
                             hintText: "Password",
@@ -374,16 +352,18 @@ class _NewAuthScreenState extends State<NewAuthScreen> {
                           ),
                           const SizedBox(height: 12),
 
-                          // Forgot Password or Role Toggle
                           if (_isLoginMode) ...[
                             Align(
                               alignment: Alignment.centerRight,
-                              child: Text(
-                                "Forgot password?",
-                                style: GoogleFonts.nunito(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.deepTeal,
+                              child: GestureDetector(
+                                onTap: _handleForgotPassword,
+                                child: Text(
+                                  "Forgot password?",
+                                  style: GoogleFonts.nunito(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.deepTeal,
+                                  ),
                                 ),
                               ),
                             ),
@@ -408,18 +388,19 @@ class _NewAuthScreenState extends State<NewAuthScreen> {
                                       });
                                     },
                                     child: Container(
-                                      height: 44,
+                                      height: 48,
                                       decoration: BoxDecoration(
                                         color: !_isProvider
                                             ? AppColors.deepTeal
                                             : (isDark ? const Color(0xFF1E1E1E) : AppColors.surfaceLightGray),
                                         borderRadius: BorderRadius.circular(12),
+                                        border: !_isProvider ? Border.all(color: Colors.greenAccent, width: 2) : null,
                                       ),
                                       alignment: Alignment.center,
                                       child: Text(
                                         "Book Helpers",
                                         style: GoogleFonts.nunito(
-                                          fontSize: 13,
+                                          fontSize: 14,
                                           fontWeight: FontWeight.w800,
                                           color: !_isProvider
                                               ? Colors.white
@@ -438,18 +419,19 @@ class _NewAuthScreenState extends State<NewAuthScreen> {
                                       });
                                     },
                                     child: Container(
-                                      height: 44,
+                                      height: 48,
                                       decoration: BoxDecoration(
                                         color: _isProvider
                                             ? AppColors.deepTeal
                                             : (isDark ? const Color(0xFF1E1E1E) : AppColors.surfaceLightGray),
                                         borderRadius: BorderRadius.circular(12),
+                                        border: _isProvider ? Border.all(color: Colors.greenAccent, width: 2) : null,
                                       ),
                                       alignment: Alignment.center,
                                       child: Text(
                                         "Provide Services",
                                         style: GoogleFonts.nunito(
-                                          fontSize: 13,
+                                          fontSize: 14,
                                           fontWeight: FontWeight.w800,
                                           color: _isProvider
                                               ? Colors.white
@@ -464,19 +446,32 @@ class _NewAuthScreenState extends State<NewAuthScreen> {
                           ],
                           const SizedBox(height: 24),
 
-                          // Dynamic Error Message Display
                           if (_errorMessage != null) ...[
                             Container(
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFFFECEC),
+                                color: _errorMessage!.contains('successfully') || _errorMessage!.contains('sent')
+                                    ? const Color(0xFFE8F5E9)
+                                    : const Color(0xFFFFECEC),
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: const Color(0xFFFFCCCC)),
+                                border: Border.all(
+                                  color: _errorMessage!.contains('successfully') || _errorMessage!.contains('sent')
+                                      ? Colors.green
+                                      : const Color(0xFFFFCCCC)
+                                ),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.error_outline_rounded, color: Color(0xFFD32F2F), size: 20),
+                                  Icon(
+                                    _errorMessage!.contains('successfully') || _errorMessage!.contains('sent')
+                                      ? Icons.check_circle_outline
+                                      : Icons.error_outline_rounded, 
+                                    color: _errorMessage!.contains('successfully') || _errorMessage!.contains('sent')
+                                      ? Colors.green
+                                      : const Color(0xFFD32F2F), 
+                                    size: 20
+                                  ),
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: Text(
@@ -484,7 +479,9 @@ class _NewAuthScreenState extends State<NewAuthScreen> {
                                       style: GoogleFonts.nunito(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w700,
-                                        color: const Color(0xFFD32F2F),
+                                        color: _errorMessage!.contains('successfully') || _errorMessage!.contains('sent')
+                                          ? Colors.green[800]
+                                          : const Color(0xFFD32F2F),
                                       ),
                                     ),
                                   ),
@@ -494,117 +491,66 @@ class _NewAuthScreenState extends State<NewAuthScreen> {
                             const SizedBox(height: 16),
                           ],
 
-                          // Action Links & Button Row
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              GestureDetector(
-                                onTap: _isLoading
-                                    ? null
-                                    : () {
-                                        setState(() {
-                                          _isLoginMode = !_isLoginMode;
-                                          _errorMessage = null;
-                                        });
-                                      },
+                          // Main Action Button (Sign In / Sign Up)
+                          SizedBox(
+                            width: double.infinity,
+                            height: 54,
+                            child: ElevatedButton(
+                              onPressed: _isLoading ? null : _handleAuth,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.deepTeal,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                elevation: 0,
+                              ),
+                              child: _isLoading
+                                  ? const SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white),
+                                    )
+                                  : Text(
+                                      _isLoginMode ? "Login" : "Sign Up",
+                                      style: GoogleFonts.nunito(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Toggle Mode Button
+                          Center(
+                            child: GestureDetector(
+                              onTap: _isLoading
+                                  ? null
+                                  : () {
+                                      setState(() {
+                                        _isLoginMode = !_isLoginMode;
+                                        _errorMessage = null;
+                                      });
+                                    },
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
                                 child: Text(
-                                  _isLoginMode ? "Sign up" : "Already registered? Login",
+                                  _isLoginMode ? "Don't have an account? Sign up" : "Already registered? Login",
                                   style: GoogleFonts.nunito(
-                                    fontSize: 14,
+                                    fontSize: 15,
                                     fontWeight: FontWeight.w800,
                                     color: AppColors.deepTeal,
                                     decoration: TextDecoration.underline,
                                   ),
                                 ),
                               ),
-                              ElevatedButton(
-                                onPressed: _isLoading ? null : _handleAuth,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.deepTeal,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                                  shape: const StadiumBorder(),
-                                  elevation: 0,
-                                ),
-                                child: _isLoading
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : Text(
-                                        _isLoginMode ? "Login" : "Submit",
-                                        style: GoogleFonts.nunito(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w800,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                              ),
-                            ],
+                            ),
                           ),
                           const SizedBox(height: 32),
-
-                          // Social Authentication Splitter & Oauth Icons
-                          Row(
-                            children: [
-                              Expanded(child: Divider(color: isDark ? Colors.white12 : Colors.black12)),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 14.0),
-                                child: Text(
-                                  "Or",
-                                  style: GoogleFonts.nunito(
-                                    fontSize: 12,
-                                    color: AppColors.textMutedGray,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                              Expanded(child: Divider(color: isDark ? Colors.white12 : Colors.black12)),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _buildSocialIcon(Icons.facebook_rounded, Colors.blue[800]!, isDark, () => _handleSocialAuth('Facebook')),
-                              const SizedBox(width: 20),
-                              _buildSocialIcon(Icons.apple_rounded, isDark ? Colors.white : Colors.black, isDark, () => _handleSocialAuth('Apple')),
-                              const SizedBox(width: 20),
-                              _buildSocialIcon(Icons.alternate_email_rounded, Colors.red[700]!, isDark, () => _handleSocialAuth('Google')), // Google proxy
-                            ],
-                          ),
                         ],
                       ),
                     ),
                   ],
-                ),
-              ),
-            ),
-          ),
-
-          // Custom back round icon
-          Positioned(
-            top: 50,
-            left: 16,
-            child: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white30),
-                ),
-                child: const Icon(
-                  Icons.arrow_back_rounded,
-                  color: Colors.white,
-                  size: 20,
                 ),
               ),
             ),
@@ -661,28 +607,6 @@ class _NewAuthScreenState extends State<NewAuthScreen> {
               child: Icon(suffixIcon, color: AppColors.textMutedGray, size: 20),
             ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSocialIcon(IconData icon, Color color, bool isDark, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 52,
-        height: 52,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: isDark ? const Color(0xFF1E1E1E) : AppColors.surfaceLightGray,
-          border: Border.all(
-            color: isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04),
-          ),
-        ),
-        child: Icon(
-          icon,
-          color: color,
-          size: 24,
-        ),
       ),
     );
   }

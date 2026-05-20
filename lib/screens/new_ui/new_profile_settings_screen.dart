@@ -436,7 +436,9 @@ class _NewProfileSettingsScreenState extends State<NewProfileSettingsScreen> {
       ).then((_) => setState(() {}));
     } else if (type == 'provider_switch') {
       StorageService.saveData('activeRole', 'Provider');
-      final bool isRegistered = MockData.isUserRegisteredAsProvider;
+      // Check if the provider storefront actually exists in the database
+      final bool isRegistered = MockData.providers.any((p) => p.id == AuthService.currentUser?.uid);
+      
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
@@ -551,8 +553,6 @@ class _NewProfileSettingsScreenState extends State<NewProfileSettingsScreen> {
                     onPressed: () async {
                       Navigator.pop(context); // close dialog
                       await AuthService.signOut();
-                      MockData.currentUserName = 'Guest';
-                      MockData.currentUserEmail = '';
                       if (context.mounted) {
                         Navigator.pushAndRemoveUntil(
                           context,

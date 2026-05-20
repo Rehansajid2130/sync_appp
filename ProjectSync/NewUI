@@ -1,0 +1,149 @@
+The application architecture consists of three main views (a **Home/Service Discovery Screen**, a **Calendar/Schedule Screen**, and a **Time Selection Overlay**) built upon a unified design system defined by the style guide image.
+
+---
+
+## Part 1: Unified Design System (`theme.dart`)
+
+Based on the style guide (the 3rd image, `image_93e302.jpg`), you should configure your root `ThemeData` using the following tokens:
+
+### Typography
+
+The primary typeface is **Nunito**. Configure your `TextTheme` to ensure proper font scaling across different devices:
+
+* **Font Family:** `Nunito`, sans-serif.
+* **Headline Large (`Display`):** SemiBold/Bold, used for prominent welcome text ("What are you looking to get done today?").
+* **Title Medium/Small:** Medium weight, used for section titles ("Popular services", "Feb 8 • Tuesday").
+* **Body Medium/Small:** Regular weight, used for metadata and descriptions ("Easy to negotiate and plan").
+
+### Color Palette
+
+Define a custom `ColorScheme` or an abstract class of constants:
+
+```dart
+class AppColors {
+  // Brand & Semantic Colors
+  static const Color primaryPink = Color(0xFFFF8698);
+  static const Color secondaryGreen = Color(0xFFD2EBBF);
+  static const Color accentYellow = Color(0xFFFFF6A4);
+  static const Color alertOrange = Color(0xFFFF8E53); // Map to conflict/warning tags
+  static const Color skyBlue = Color(0xFFBCE7F0);
+
+  // Neutrals
+  static const Color backgroundWhite = Color(0xFFFFFFFF);
+  static const Color textDark = Color(0xFF121211);
+  static const Color textMutedGray = Color(0xFF7E7E7E);
+  static const Color surfaceLightGray = Color(0xFFF5F5F7);
+}
+
+```
+
+### Layout Grid & Global Rules
+
+* **Grid System:** 4-column layout for responsive mobile views.
+* **Margins:** Global horizontal screen padding is `16.0` pixels (`Margin: 16px`).
+* **Gutter Width:** Distance between grid elements is `12.0` pixels (`Gutter: 12px`).
+* **Card Corner Radii:** Use uniform `BorderRadius.circular(24.0)` or `32.0` for containers, reflecting the highly pill-shaped, soft-morphism layout.
+
+---
+
+## Part 2: Screen Breakdown & Component Layouts
+
+### 1. Home / Service Discovery Screen (`image_93ee65.png` & `image_93e79d.png`)
+
+This screen represents the landing page for service booking (e.g., home services or beauty/skincare discovery).
+
+#### Layout Structure:
+
+* **Top App Bar (Custom Widget):**
+* Do not use a standard `AppBar`. Instead, use a `SliverToBoxAdapter` or a top `Padding` row containing a `Column` for the user greeting ("Hello Neha" or "Good Morning! Mark.") and a sub-row for the location pin indicator.
+* An `CircleAvatar` or a clipped image container holds the user profile picture on the right side.
+
+
+* **Search Box (`TextField`):**
+* Wrapped in a container with a background color of `AppColors.surfaceLightGray` and a `BorderRadius.circular(16.0)`.
+* Prefix icon: `Icons.search`.
+* Suffix icon: A custom trailing filter/settings adjustment slider icon.
+
+
+* **Promo Banner Card:**
+* A `Container` using a background color matching `AppColors.secondaryGreen` or light blue.
+* Inside, a `Row` splits content 60/40: The left side contains a text column with large typography ("50% Off") and a dark-styled pill button (`ElevatedButton` with `AppColors.textDark` fill and white text). The right side features an aligned transparent asset image.
+
+
+* **Category Horizontal List / Filter Tags:**
+* Implemented via an explicit height `ListView.builder(scrollDirection: Axis.horizontal)`.
+* Each element is a vertical pill structure or a square card with a `BorderRadius.circular(16.0)`.
+* *Active State:* The "All" or selected category takes a solid background (`AppColors.primaryPink`) with white iconography. *Inactive State:* White backgrounds with subtle borders and dark gray icons.
+
+
+* **Service Grid / Vertical Feed:**
+* Can be arranged as a staggered grid or a `Row` containing expanded cards for featured services (e.g., "Cleaning Assistant", "Plumber").
+* **Card Composition:** Use a `Stack` widget. The base layer is a high-resolution image clipped via a `ClipRRect`. A dark gradient `Container` (`LinearGradient` from transparent to `Colors.black54`) overlays the bottom of the image to ensure the white text overlays ("Cleaning Assistant", "$10/Hour") remain readable. A `Positioned` bookmark or favorite button sits at the top right of the card.
+
+
+* **Persistent Curved Bottom Navigation Bar:**
+* A custom `Container` with a top box shadow (`BoxShadow`) and an ultra-rounded shape or inner cutout to hold a floating floating action icon in the center.
+* Standard menu items use linear gray outline line-art icons from the style guide (Home, Profile, Messages, Calendar).
+
+
+
+---
+
+### 2. Calendar / Schedule Management Screen (`image_93df25.png`)
+
+This view controls scheduling, displaying active appointments, and identifying time slot conflicts.
+
+#### Layout Structure:
+
+* **Segmented Controller Header:**
+* A pill-shaped background container housing three options: "Today", "Week", and "Month".
+* The active choice ("Week") shifts smoothly using an implicit animation container (`AnimatedContainer`) with an `AppColors.textDark` background fill and white text.
+
+
+* **Horizontal Weekly Date Ribbon:**
+* A 7-day horizontal calendar component (`ListView.builder`).
+* Each column block displays a shortened day name string ("Tu", "We") above its numerical day value.
+* *Active Selected Indicator:* Highlighted with a background vertical capsule pill shape.
+* *Conflict Notification Dots:* Days containing schedule collisions display a small semantic orange/red dot indicator (`BoxShape.circle`) directly beneath the day's numerical text.
+
+
+* **Chronological Agenda Timeline (Vertical List):**
+* Grouped daily schedules using sticky section text headers ("Feb 8 • Tuesday"). Directly underneath the header, a lightweight descriptive text status string is rendered ("Easy to negotiate and plan" or "Conflict day").
+* **Event Booking Cards:** Wrapped in a padded container with explicit layout logic based on event health:
+* *Clean/Approved Event:* Contains a light green status badge capsule (`2:00pm - 3:00pm`) followed by the title "Investors Meetup" and an interactive hyperlink row displaying the meeting link.
+* *Conflicting Event:* Contains an orange/red status badge capsule (`4:00pm - 5:00pm`) followed by the title label "Conflict Hour".
+
+
+
+
+* **Floating Action Button (FAB):**
+* A stark black circular button located at the bottom-right coordinates containing a simple white `Icons.add` glyph to trigger new event creations.
+
+
+
+---
+
+### 3. Radial Time Selection Component (`image_93df00.png`)
+
+This component acts as an immersive overlay dialog or modal page dedicated to micro-adjusting specific hours during event setup.
+
+#### Layout Structure:
+
+* **Header Metric Readout:**
+* Displays the currently chosen time value in high-visibility extra-bold typography ("07:00").
+* Directly underneath, a toggle switch capsule enables selection between "AM" and "PM". This is a segmented control component where the selected status gains a solid dark background fill.
+
+
+* **Interactive Radial Analog Clock Graph:**
+* This is the core custom widget of the screen. In Flutter, this should be implemented using a combined **`CustomPainter`** and a **`GestureDetector`** to capture circular input tracking coordinates.
+* **The Dial Face:** A clean white circular plate ringed with explicit numerical markers mapping out the standard 12-hour clock face loop positions.
+* **Outer Timeline Arc Tracks:** Colorful linear arcs drawn along the outside edge of the clock ring illustrate pre-allocated schedule data:
+* *Red/Orange Track Segment:* Indicates blocks of time that are unavailable or conflicted.
+* *Green Track Segment:* Indicates recommended, free, or clear operating windows.
+
+
+* **The Interactive Selector Node:** A distinct black circle layout indicator extending outward from the center via a thin needle pointer arm line. The active node displays the selected integer identifier inside its circle (e.g., the white number "7"), accented by a glowing green selection dot directly underneath. Use radial trigonometry math expressions (`atan2`) inside the `GestureDetector` callback to update the needle arm rotation dynamically as the user drags their finger over the dial.
+
+
+* **Primary Confirmation Button:**
+* A fixed, maximum-width black button anchoring the bottom of the screen layout view, styled using an explicit `ElevatedButton.styleFrom(backgroundColor: AppColors.textDark, shape: StadiumBorder())` implementation to display the "Done" label string.

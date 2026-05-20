@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/services/auth_service.dart';
-import '../splash_screen.dart';
+import '../new_ui/new_auth_screen.dart';
+import '../new_ui/new_navigation_wrapper.dart';
+import '../address_setup_screen.dart';
 import '../../core/data/mock_data.dart';
 import '../../core/services/review_service.dart';
 import '../../models/review.dart';
@@ -424,28 +426,114 @@ class _ProviderStorefrontScreenState extends State<ProviderStorefrontScreen> {
   }
 
   Widget _buildSwitchButton(bool isDark) {
-    return SizedBox(
-      width: double.infinity,
-      height: 54,
-      child: OutlinedButton.icon(
-        onPressed: () async {
-          await StorageService.saveData('activeRole', 'Customer');
-          if (context.mounted) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const SplashScreen()),
-              (route) => false,
-            );
-          }
-        },
-        icon: const Icon(Icons.swap_horiz_rounded, size: 18),
-        label: Text('Switch to Client Mode', style: GoogleFonts.nunito(fontWeight: FontWeight.w800, fontSize: 13)),
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          foregroundColor: Colors.red.shade400,
-          side: BorderSide(color: Colors.red.shade200),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+    return Column(
+      children: [
+        // Switch to Client Mode
+        SizedBox(
+          width: double.infinity,
+          height: 54,
+          child: OutlinedButton.icon(
+            onPressed: () async {
+              await StorageService.saveData('activeRole', 'Customer');
+              if (context.mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const _CustomerRedirectScreen()),
+                  (route) => false,
+                );
+              }
+            },
+            icon: const Icon(Icons.swap_horiz_rounded, size: 18),
+            label: Text('Switch to Client Mode', style: GoogleFonts.nunito(fontWeight: FontWeight.w800, fontSize: 13)),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              foregroundColor: AppColors.deepTeal,
+              side: const BorderSide(color: AppColors.deepTeal),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            ),
+          ),
         ),
+        const SizedBox(height: 14),
+        // Logout Button
+        SizedBox(
+          width: double.infinity,
+          height: 54,
+          child: OutlinedButton.icon(
+            onPressed: () => _showLogoutDialog(isDark),
+            icon: const Icon(Icons.logout_rounded, size: 18),
+            label: Text('Logout', style: GoogleFonts.nunito(fontWeight: FontWeight.w800, fontSize: 13)),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              foregroundColor: Colors.red.shade400,
+              side: BorderSide(color: Colors.red.shade200),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showLogoutDialog(bool isDark) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF161616) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Center(
+          child: Text(
+            'Confirm Logout',
+            style: GoogleFonts.nunito(color: Colors.red, fontWeight: FontWeight.w900),
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to sign out of your account?',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.nunito(fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : AppColors.textDark),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: isDark ? Colors.white30 : AppColors.mutedGray.withOpacity(0.4)),
+                      shape: const StadiumBorder(),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: Text('Cancel', style: GoogleFonts.nunito(fontWeight: FontWeight.w800, color: isDark ? Colors.white70 : AppColors.textDark)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      await AuthService.signOut();
+                      if (context.mounted) {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => const NewAuthScreen()),
+                          (route) => false,
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      shape: const StadiumBorder(),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: Text('Logout', style: GoogleFonts.nunito(fontWeight: FontWeight.w800, color: Colors.white)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -535,6 +623,31 @@ class _ProviderStorefrontScreenState extends State<ProviderStorefrontScreen> {
           },
         );
       },
+    );
+  }
+}
+
+/// Simple redirect screen that sends the user to the customer side
+/// without logging them out.
+class _CustomerRedirectScreen extends StatelessWidget {
+  const _CustomerRedirectScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final hasAddress = MockData.addresses.isNotEmpty;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => hasAddress
+              ? const NewNavigationWrapper()
+              : const AddressSetupScreen(),
+        ),
+      );
+    });
+
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
     );
   }
 }

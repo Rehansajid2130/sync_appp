@@ -1,0 +1,76 @@
+# Implementation Plan — In-Place Premium Soft-UI Design Upgrades
+
+This plan details the process of replacing the visual design of all classic screens *in-place*. Instead of changing route definitions, we will directly overwrite the widget layout and style code inside the original classic screen files with the modern Nunito Soft-Morphism style, layout, and behaviors of the new UI components.
+
+This preserves the entire routing tree and all existing deep integrations, but instantly makes the entire application feel modern and premium.
+
+---
+
+## Proposed Changes
+
+We will perform in-place replacements of layouts in the following files:
+
+### 1. Authentication Screens
+
+#### [MODIFY] [login_screen.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/screens/login_screen.dart)
+- Replace the classic layout with the interactive `NewAuthScreen` layout (in login mode, `_isLoginMode = true`).
+- Retain the class name as `LoginScreen` to prevent breaking existing navigation imports.
+
+#### [MODIFY] [signup_screen.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/screens/signup_screen.dart)
+- Replace the classic layout with the interactive `NewAuthScreen` layout configured in registration mode (`_isLoginMode = false` initially).
+- Retain the class name as `SignupScreen`.
+
+---
+
+### 2. Main Shell & Core Dashboards
+
+#### [MODIFY] [main_navigation_screen.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/screens/main_navigation_screen.dart)
+- Overwrite the classic bottom bar layout with the custom-drawn `CurvedBottomBar` and the `NewNavigationWrapper` layout structure.
+- Retain support for `initialIndex` by mapping it to the internal state index.
+- Retain the class name as `MainNavigationScreen`.
+
+#### [MODIFY] [home_dashboard_screen.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/screens/home_dashboard_screen.dart)
+- Overwrite the classic grid and layout list with the premium Nunito-based top greeting bar, custom search container, and staggered featured discovery cards of `NewHomeDashboardScreen`.
+- Retain the class name as `HomeDashboardScreen`.
+
+---
+
+### 3. Search & Provider Discovery Screens
+
+#### [MODIFY] [search_results_screen.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/screens/search_results_screen.dart)
+- Overwrite the list-view search results with the modern search results feed and dynamic filter tags layout of `NewSearchResultsScreen`.
+- Retain the class name as `SearchResultsScreen`.
+
+#### [MODIFY] [service_detail_screen.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/screens/service_detail_screen.dart)
+- Overwrite the classic collapsing detail sheet with the high-fidelity sliver image carousel, ratings summary, and scrollable reviews feed of `NewProviderDetailScreen`.
+- Retain the class name as `ServiceDetailScreen`.
+
+---
+
+### 4. Messaging & Scheduling Screens
+
+#### [MODIFY] [calendar_screen.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/screens/calendar_screen.dart)
+- Replace the classic calendar layout with the custom horizontal Date Ribbon, agenda timeline, and radial analog clock adjustment widget of `NewCalendarScreen`.
+- Retain the class name as `CalendarScreen`.
+
+#### [MODIFY] [inbox_screen.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/screens/inbox_screen.dart)
+- Replace the classic chat thread list with the modern design of `NewChatScreen`.
+- Retain the class name as `InboxScreen`.
+
+#### [MODIFY] [chat_detail_screen.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/screens/chat_detail_screen.dart)
+- Replace the classic text balloon layout with the highly functional micro-interactive bubbles, voice recorders, and schedules renegotiation slots of `NewChatDetailScreen`.
+- Retain the class name as `ChatDetailScreen`.
+
+#### [MODIFY] [profile_screen.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/screens/profile_screen.dart)
+- Overwrite the settings page with the premium earning charts, role switch widgets, and settings toggles of `NewProfileSettingsScreen`.
+- Retain the class name as `ProfileScreen`.
+
+---
+
+## Verification Plan
+
+### Automated & Manual Testing
+1. **Static Analysis Check:** Run `flutter analyze` to ensure that all replacement classes maintain perfect compatibility with existing signatures.
+2. **Onboarding & Auth Flow Verification:** Launch the application, verify that the boot sequence flows seamlessly into the new `LoginScreen` / `SignupScreen` layouts.
+3. **Core Shell Navigation:** Verify that shifting tabs on the bottom navigation bar animates smoothly and updates the respective layout views.
+4. **Reschedule & Conflict Check:** Open the Calendar tab, select a rescheduled booking, and verify that the custom Radial Time Picker captures circular coordinate updates cleanly.

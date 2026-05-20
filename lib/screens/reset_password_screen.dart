@@ -2,10 +2,23 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../widgets/custom_text_field.dart';
-import 'otp_verification_screen.dart';
+import 'create_new_password_screen.dart';
 
-class ResetPasswordScreen extends StatelessWidget {
+class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
+
+  @override
+  State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
+}
+
+class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
+  final TextEditingController _emailController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +100,7 @@ class ResetPasswordScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Please enter your email and we will send an OTP code in the next step to reset your password',
+                        'Please enter your email to reset your password. You will be able to set a new password in the next step.',
                         textAlign: TextAlign.center,
                         style: AppTypography.textTheme.bodyMedium?.copyWith(
                           color: AppColors.textSecondaryLight,
@@ -95,7 +108,8 @@ class ResetPasswordScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 32),
-                      const CustomTextField(
+                      CustomTextField(
+                        controller: _emailController,
                         label: 'Email',
                         hintText: 'Input your email',
                         prefixIcon: Icons.mail_outline,
@@ -114,9 +128,18 @@ class ResetPasswordScreen extends StatelessWidget {
                 height: 52,
                 child: ElevatedButton(
                   onPressed: () {
+                    final email = _emailController.text.trim();
+                    if (email.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Please enter your email')),
+                      );
+                      return;
+                    }
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const OtpVerificationScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => CreateNewPasswordScreen(email: email),
+                      ),
                     );
                   },
                   style: ElevatedButton.styleFrom(

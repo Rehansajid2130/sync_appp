@@ -1,144 +1,67 @@
-# ============================================================
-# FLUTTER / DART
-# ============================================================
-
-# Dart tool cache & generated files
+# Flutter/Dart
 .dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
+.packages
 .pub-cache/
 .pub/
+build/
 
-# Build outputs (never commit these)
-/build/
-**/doc/api/
-
-# Dart generated files
-*.g.dart
-*.freezed.dart
-*.mocks.dart
-
-# Coverage reports
-/coverage/
-
-# ============================================================
-# ANDROID
-# ============================================================
-
-# Gradle build outputs
-/android/app/debug/
-/android/app/profile/
-/android/app/release/
-/android/.gradle/
-/android/local.properties
-/android/captures/
-**/android/gradlew
-**/android/gradlew.bat
-
-# Google Services (contains API keys — never commit)
-**/google-services.json
-**/GoogleService-Info.plist
-
-# Android keystore (signing keys — sensitive!)
-*.jks
+# Android
+android/local.properties
+android/key.properties
+android/bundle
+android/app/src/main/res/raw/
+android/.gradle/
+android/app/build/
+android/app/debug/
+android/app/profile/
+android/app/release/
 *.keystore
-key.properties
+*.jks
 
-# ============================================================
-# iOS / macOS
-# ============================================================
+# iOS
+ios/.generated/
+ios/Flutter/App.framework
+ios/Flutter/App.podspec
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/Pods/
+ios/Runner/GeneratedPluginRegistrant.h
+ios/Runner/GeneratedPluginRegistrant.m
+ios/ServiceDefinitions.json
+DerivedData/
+*.moved-aside
+*.xcuserstate
+*.xcworkspace
+!ios/Runner.xcworkspace
 
-**/ios/Flutter/.last_build_id
-**/ios/Pods/
-**/ios/.symlinks/
-**/ios/Flutter/Flutter.framework
-**/ios/Flutter/Flutter.podspec
-/ios/Runner.xcworkspace/xcshareddata/
-/macos/Pods/
-/macos/.symlinks/
+# macOS
+macos/Flutter/ephemeral/
+macos/Pods/
 
-# ============================================================
-# WINDOWS / LINUX
-# ============================================================
+# Linux
+linux/flutter/ephemeral/
 
-/windows/flutter/generated_plugin_registrant.cc
-/windows/flutter/generated_plugin_registrant.h
-/windows/flutter/generated_plugins.cmake
-/linux/flutter/generated_plugin_registrant.cc
-/linux/flutter/generated_plugin_registrant.h
-/linux/flutter/generated_plugins.cmake
+# Windows
+windows/flutter/ephemeral/
+windows/flutter/generated/
 
-# ============================================================
-# RELEASE APK / IPA BUILDS
-# ============================================================
-
-*.apk
-*.aab
-*.ipa
-*.dSYM.zip
-*.dSYM
-
-# Symbolication & obfuscation maps
-app.*.symbols
-app.*.map.json
-
-# ============================================================
-# ENVIRONMENT & SECRETS
-# ============================================================
-
-# Never commit API keys, secrets, or env files
-.env
-.env.local
-.env.production
-.env.staging
-secrets.dart
-firebase_options.dart
-.ProjectSync/
-newchat_context.md
-PROJECT_SUMMARY.md
-
-# ============================================================
-# IDE & EDITOR FILES
-# ============================================================
-
-# IntelliJ / Android Studio
-*.iml
-*.ipr
-*.iws
+# IDEs
 .idea/
+*.iml
+*.iws
+.vscode/
+.history/
 
-# VS Code (uncomment the line below to also ignore VS Code settings)
-# .vscode/
-*.code-workspace
-
-# ============================================================
-# OS GENERATED FILES
-# ============================================================
-
+# OS files
 .DS_Store
-.DS_Store?
 Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
 
-# ============================================================
-# MISC
-# ============================================================
+# Environment variables
+.env
+.env.*
+lib/core/config/api_keys_local.dart
 
-*.class
+# Logs
 *.log
-*.pyc
-*.swp
-.atom/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
-
-# MCP / AI tool config (local only)
-.mcp.json
-ProjectSync/
-atifacts/
-

@@ -167,7 +167,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     } else {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const CreateNewPasswordScreen()),
+                        MaterialPageRoute(builder: (_) => CreateNewPasswordScreen(email: widget.email)),
                       );
                     }
                   },

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/theme/app_colors.dart';
+import '../core/services/auth_service.dart';
 import 'new_ui/new_auth_screen.dart';
 
 class CreateNewPasswordScreen extends StatefulWidget {
-  const CreateNewPasswordScreen({super.key});
+  final String email;
+  const CreateNewPasswordScreen({super.key, required this.email});
 
   @override
   State<CreateNewPasswordScreen> createState() => _CreateNewPasswordScreenState();
@@ -13,6 +15,59 @@ class CreateNewPasswordScreen extends StatefulWidget {
 class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleResetPassword() async {
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    if (password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a new password')),
+      );
+      return;
+    }
+
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+
+    if (password.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password must be at least 6 characters')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    final result = await AuthService.updatePasswordDirectly(
+      email: widget.email,
+      newPassword: password,
+    );
+
+    setState(() => _isLoading = false);
+
+    if (result.success) {
+      _showSuccessDialog(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result.message ?? 'Failed to reset password')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +155,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Please enter your new password below. Make sure it is strong and memorable.',
+                        'Please enter your new password for ${widget.email}. Make sure it is strong and memorable.',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.nunito(
                           color: isDark ? Colors.white70 : AppColors.mutedGray,
@@ -113,6 +168,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                       
                       _buildPasswordField(
                         label: 'New Password',
+                        controller: _passwordController,
                         obscure: _obscurePassword,
                         onToggle: () => setState(() => _obscurePassword = !_obscurePassword),
                         isDark: isDark,
@@ -120,6 +176,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                       const SizedBox(height: 24),
                       _buildPasswordField(
                         label: 'Confirm New Password',
+                        controller: _confirmPasswordController,
                         obscure: _obscureConfirmPassword,
                         onToggle: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
                         isDark: isDark,
@@ -136,9 +193,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                 width: double.infinity,
                 height: 58,
                 child: ElevatedButton(
-                  onPressed: () {
-                    _showSuccessDialog(context);
-                  },
+                  onPressed: _isLoading ? null : _handleResetPassword,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.deepTeal,
                     foregroundColor: Colors.white,
@@ -147,13 +202,15 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                       borderRadius: BorderRadius.circular(28),
                     ),
                   ),
-                  child: Text(
-                    'Reset Password',
-                    style: GoogleFonts.nunito(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
+                  child: _isLoading 
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : Text(
+                        'Reset Password',
+                        style: GoogleFonts.nunito(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
                 ),
               ),
             ),
@@ -165,6 +222,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
 
   Widget _buildPasswordField({
     required String label,
+    required TextEditingController controller,
     required bool obscure,
     required VoidCallback onToggle,
     required bool isDark,
@@ -190,6 +248,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
             border: Border.all(color: isDark ? Colors.white10 : Colors.black.withOpacity(0.04)),
           ),
           child: TextField(
+            controller: controller,
             obscureText: obscure,
             style: GoogleFonts.nunito(fontWeight: FontWeight.w700),
             decoration: InputDecoration(

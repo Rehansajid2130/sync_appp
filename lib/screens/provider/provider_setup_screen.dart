@@ -120,8 +120,6 @@ class _ProviderSetupScreenState extends State<ProviderSetupScreen> {
                     await MockData.registerProvider(newProvider);
 
                     // Update user as provider in MockData
-                    MockData.isUserRegisteredAsProvider = true;
-                    // Update user in AuthService
                     await AuthService.updateProfile(isProvider: true);
                     
                     // Persist active role

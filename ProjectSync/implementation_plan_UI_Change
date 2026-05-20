@@ -1,0 +1,102 @@
+# Implementation Plan — Premium New UI Components & Screens
+
+This implementation plan details the addition of the new UI components and screens outlined in the style guide file. The designs showcase soft-morphism, custom interactive controls, Nunito-based typography, and gorgeous layout grids that elevate the HelperHive application to a premium state.
+
+We will build these layouts as highly modular, reusable components so they can be easily maintained and plugged into any part of the application. To allow full testing, we will integrate them into a dedicated navigation wrapper ("New UI Mode") accessible via the home page dashboard toggle.
+
+---
+
+## User Review Required
+
+> [!IMPORTANT]
+> **Key Integration & Theme Coexistence:** 
+> We are adding new color tokens (`primaryPink`, `secondaryGreen`, `accentYellow`, `skyBlue`, `alertOrange`) and a new typography set (`Nunito`) alongside the existing green brand colors and Midnight theme. To achieve this cleanly without breaking existing client or provider screens:
+> 1. We will merge the new color palette directly into [app_colors.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/core/theme/app_colors.dart) as secondary accent colors.
+> 2. We will create dedicated, reusable widgets under `lib/widgets/new_ui/` that use these colors and apply the `Nunito` Google Font explicitly.
+> 3. We will register a new navigation flow so you can toggle between the **Classic Green UI**, the **AI Search Dashboard**, and this **New Soft-UI Design System** with one click.
+
+---
+
+## Proposed Changes
+
+### Theme & Global Tokens
+
+#### [MODIFY] [app_colors.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/core/theme/app_colors.dart)
+- Append the new color tokens from the style guide:
+  - `primaryPink` (`0xFFFF8698`)
+  - `secondaryGreen` (`0xFFD2EBBF`)
+  - `accentYellow` (`0xFFFFF6A4`)
+  - `alertOrange` (`0xFFFF8E53`)
+  - `skyBlue` (`0xFFBCE7F0`)
+  - `textDark` (`0xFF121211`)
+  - `textMutedGray` (`0xFF7E7E7E`)
+  - `surfaceLightGray` (`0xFFF5F5F7`)
+
+---
+
+### Reusable New UI Widgets (`lib/widgets/new_ui/`)
+
+#### [NEW] [promo_banner_card.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/widgets/new_ui/promo_banner_card.dart)
+- A gorgeous, split-row promo banner matching the layout of the discovery screen.
+- Configurable background (`AppColors.secondaryGreen` or `AppColors.skyBlue`), custom discount texts, and a sleek dark button (`AppColors.textDark`) with micro-animations.
+
+#### [NEW] [category_filter_tags.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/widgets/new_ui/category_filter_tags.dart)
+- A horizontal filter ribbon of capsules where selected categories are highlighted in `AppColors.primaryPink` with white icons, and unselected ones are white with subtle borders and dark gray icons.
+
+#### [NEW] [service_discovery_card.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/widgets/new_ui/service_discovery_card.dart)
+- Premium featured cards built with a `Stack` layout.
+- Base high-resolution Unsplash image clipped via `ClipRRect`, dark gradient overlay (`LinearGradient` transparent to `Colors.black87`), bold service title overlays, price per hour metrics, and a floating favorite/bookmark button at the top right.
+
+#### [NEW] [curved_bottom_bar.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/widgets/new_ui/curved_bottom_bar.dart)
+- A custom-drawn persistent bottom navigation bar featuring a top `BoxShadow` and an elegant curved shape that cradles a central floating action button.
+
+#### [NEW] [segmented_controller.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/widgets/new_ui/segmented_controller.dart)
+- A beautiful, sliding segmented pill controller ("Today", "Week", "Month") that transitions the active choice using an `AnimatedContainer` filled with `AppColors.textDark`.
+
+#### [NEW] [weekly_date_ribbon.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/widgets/new_ui/weekly_date_ribbon.dart)
+- A horizontal date picker component. Days display shortened text above numerical day counters.
+- Visual elements:
+  - Active selection highlighted in a rounded capsule.
+  - Underneath, conflict notification dots (orange/red `BoxShape.circle`) are rendered dynamically for days containing schedule collisions.
+
+#### [NEW] [event_agenda_card.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/widgets/new_ui/event_agenda_card.dart)
+- Event items with custom layouts depending on their collision state:
+  - **Approved Event:** Light green capsule badge for the timeframe, clean event title, and clickable meeting hyperlink.
+  - **Conflicting Event:** Crimson/orange capsule badge (`alertOrange`), displaying "Conflict Hour".
+
+#### [NEW] [radial_time_painter.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/widgets/new_ui/radial_time_painter.dart)
+- The core custom radial widget. Implemented using a custom `CustomPainter` to draw:
+  - Outer arc tracks representing schedule data: green for free/recommended slots, orange/red for conflicted slots.
+  - Radial numbers 1 to 12.
+  - A dark selector needle pointer radiating from the center.
+  - A floating selected node containing the active integer hour with a glowing green dot underneath.
+- Utilizes a wrapping `GestureDetector` to track drag coordinates, calculate radial angles using `atan2(y, x)`, and snap to the nearest hour dynamically with haptic-like responsiveness.
+
+---
+
+### Showcase & Interactive Screen Integrations (`lib/screens/new_ui/`)
+
+#### [NEW] [new_home_dashboard.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/screens/new_ui/new_home_dashboard.dart)
+- Incorporates the premium Top App Bar, custom Search Box, Promo Banner Card, Category Filter Tags, and a Staggered Service Grid using our new reusable components.
+- Extensively uses the **Nunito** typeface.
+
+#### [NEW] [new_calendar_screen.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/screens/new_ui/new_calendar_screen.dart)
+- Integrates the Segmented Controller Header, Horizontal Weekly Ribbon with conflict indicators, and the Chronological Agenda Timeline listing both approved and conflicted events.
+- Features a floating black action button that pops up our interactive Radial Time Selection Component as a sleek modal dialogue.
+
+#### [NEW] [new_navigation_wrapper.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/screens/new_ui/new_navigation_wrapper.dart)
+- Combines the new screens using our custom `CurvedBottomBar` and coordinates index changes.
+- Integrates a top-floating back-to-classic exit toggle so judges can transition back immediately.
+
+#### [MODIFY] [main_navigation_screen.dart](file:///c:/Users/lenovo/Desktop/google/sync_app/lib/screens/main_navigation_screen.dart)
+- Add a new button/option to easily switch the active dashboard to the "New Soft-UI Showcase Mode" so the new design can be completely navigated and evaluated.
+
+---
+
+## Verification Plan
+
+### Automated & Manual Testing
+- **Visual Integration Check:** Navigate through the New Home Dashboard and New Calendar screens, verifying that text alignments, card radii, search borders, and icons perfectly match the style guide.
+- **Radial Trigonometry Verification:** Open the Radial Time Selection modal and drag the clock needle. Verify that the selector node snaps perfectly to standard hour intervals (1 to 12) using `atan2` mathematics and immediately updates the digital readout above.
+- **Interactive Toggles:** Verify that tapping "AM"/"PM" or changing the segmented header ("Today", "Week", "Month") animates smoothly and updates the respective layout views.
+- **Theme Stability:** Toggle between Light and Dark modes. Verify that the soft-morphism widgets adapt gracefully and retain their beautiful high-contrast borders and readable labels.

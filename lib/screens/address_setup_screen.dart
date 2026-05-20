@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import '../core/theme/app_colors.dart';
 import '../core/data/mock_data.dart';
 import 'new_ui/new_navigation_wrapper.dart';
+import 'add_address_map_screen.dart';
 
 class AddressSetupScreen extends StatefulWidget {
   const AddressSetupScreen({super.key});
@@ -13,11 +16,15 @@ class AddressSetupScreen extends StatefulWidget {
 
 class _AddressSetupScreenState extends State<AddressSetupScreen> {
   final TextEditingController _addressController = TextEditingController();
+  final MapController _mapController = MapController();
+  
+  LatLng _currentLocation = const LatLng(31.4826, 74.3973); // Default (Lahore)
+  String _addressTitle = 'My Home';
 
   @override
   void initState() {
     super.initState();
-    _addressController.text = "123 Main Street, New York, NY 10001";
+    _addressController.text = "DHA Phase 6, Lahore, Punjab, Pakistan";
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showLocationPermissionDialog(context);
     });
@@ -121,6 +128,22 @@ class _AddressSetupScreenState extends State<AddressSetupScreen> {
     );
   }
 
+  void _openInteractiveMap() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddAddressMapScreen()),
+    );
+    
+    if (result != null && result is Map<String, dynamic>) {
+      setState(() {
+        _addressController.text = result['address'];
+        _addressTitle = result['title'];
+        _currentLocation = LatLng(result['lat'], result['lng']);
+        _mapController.move(_currentLocation, 15.0);
+      });
+    }
+  }
+
   void _saveAndProceed() async {
     final text = _addressController.text.trim();
     if (text.isEmpty) {
@@ -131,18 +154,16 @@ class _AddressSetupScreenState extends State<AddressSetupScreen> {
     }
 
     final newAddress = UserAddress(
-      title: 'My Home',
+      title: _addressTitle,
       address: text,
-      latitude: -6.58913,
-      longitude: 106.7262,
+      latitude: _currentLocation.latitude,
+      longitude: _currentLocation.longitude,
       isSelected: true,
       isMain: true,
     );
 
-    // Save to MockData and commit
-    MockData.addresses.clear();
-    MockData.addresses.add(newAddress);
-    await MockData.saveAddresses();
+    // Save strictly to cloud database
+    await MockData.saveAddress(newAddress);
 
     if (mounted) {
       Navigator.pushReplacement(
@@ -156,8 +177,10 @@ class _AddressSetupScreenState extends State<AddressSetupScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final canPop = Navigator.canPop(context);
+    
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.offWhite,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -220,38 +243,99 @@ class _AddressSetupScreenState extends State<AddressSetupScreen> {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      // Placeholder map UI
+                      // Interactive FlutterMap instead of static placeholder
                       Positioned.fill(
-                        child: Opacity(
-                          opacity: isDark ? 0.3 : 1.0,
-                          child: Image.network(
-                            'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s+0F686B(-73.99,40.70)/-73.99,40.70,12/600x400?access_token=pk.placeholder',
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => Container(
-                              color: isDark ? const Color(0xFF222222) : const Color(0xFFE8F0F2),
+                        child: IgnorePointer(
+                          // Ignore pointers to let the Stack's GestureDetector handle taps
+                          // which opens the full-screen interactive map
+                          child: FlutterMap(
+                            mapController: _mapController,
+                            options: MapOptions(
+                              initialCenter: _currentLocation,
+                              initialZoom: 15.0,
+                              interactionOptions: const InteractionOptions(
+                                flags: InteractiveFlag.none,
+                              ),
                             ),
+                            children: [
+                              TileLayer(
+                                urlTemplate: isDark
+                                    ? 'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+                                    : 'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+                                userAgentPackageName: 'com.helperhive.app',
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppColors.deepTeal,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.deepTeal.withOpacity(0.3),
-                                  blurRadius: 15,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: const Icon(Icons.person_pin_circle_rounded, color: Colors.white, size: 28),
+                      
+                      // Full screen gesture detector
+                      Positioned.fill(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: _openInteractiveMap,
+                            splashColor: AppColors.deepTeal.withOpacity(0.2),
                           ),
-                        ],
+                        ),
+                      ),
+                      
+                      // Center Pin Marker
+                      IgnorePointer(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: AppColors.deepTeal,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.deepTeal.withOpacity(0.3),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(Icons.person_pin_circle_rounded, color: Colors.white, size: 28),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      // "Tap to expand" badge
+                      Positioned(
+                        bottom: 16,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: isDark ? Colors.black87 : Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.touch_app_rounded, size: 16, color: AppColors.deepTeal),
+                              const SizedBox(width: 6),
+                              Text(
+                                "Tap to adjust",
+                                style: GoogleFonts.nunito(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 12,
+                                  color: isDark ? Colors.white : AppColors.charcoalDark,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -286,13 +370,33 @@ class _AddressSetupScreenState extends State<AddressSetupScreen> {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    Text(
-                      'Your New Home',
-                      style: GoogleFonts.nunito(
-                        color: isDark ? Colors.white : AppColors.charcoalDark,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 24,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Your New Home',
+                          style: GoogleFonts.nunito(
+                            color: isDark ? Colors.white : AppColors.charcoalDark,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 24,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: AppColors.deepTeal.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            _addressTitle,
+                            style: GoogleFonts.nunito(
+                              color: AppColors.deepTeal,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 12),
                     Text(

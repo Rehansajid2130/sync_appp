@@ -190,24 +190,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: ElevatedButton(
                 onPressed: () async {
                   if (AuthService.currentUser != null) {
-                    await AuthService.updateProfile(
+                    bool success = await AuthService.updateProfile(
                       name: _nameController.text.trim(),
                       email: _emailController.text.trim(),
                     );
-                  }
-                  MockData.currentUserName = _nameController.text.trim();
-                  MockData.currentUserEmail = _emailController.text.trim();
-
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Profile updated successfully!', style: GoogleFonts.nunito(fontWeight: FontWeight.w700)),
-                        backgroundColor: AppColors.deepTeal,
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      ),
-                    );
-                    Navigator.pop(context);
+                    
+                    if (mounted && success) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Profile updated successfully!', style: GoogleFonts.nunito(fontWeight: FontWeight.w700)),
+                          backgroundColor: AppColors.deepTeal,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        ),
+                      );
+                      Navigator.pop(context);
+                    }
                   }
                 },
                 style: ElevatedButton.styleFrom(
