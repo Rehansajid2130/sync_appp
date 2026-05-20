@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ServiceProvider {
-  final String id; // Added ID
+  final String id;
   final String name;
   final String category;
   final double rating;
@@ -9,8 +9,9 @@ class ServiceProvider {
   final String location;
   final IconData icon;
   final Color avatarColor;
-  final String priceRange; // Added priceRange
-  final List<String> availableTimes; // Added availableTimes
+  final List<String> availableTimes;
+  final String description;
+  final int experience;
 
   const ServiceProvider({
     required this.id,
@@ -21,8 +22,9 @@ class ServiceProvider {
     required this.location,
     required this.icon,
     required this.avatarColor,
-    this.priceRange = "\$\$ - \$\$\$", // Escaped dollars
     this.availableTimes = const [],
+    this.description = '',
+    this.experience = 0,
   });
 
   Map<String, dynamic> toJson() => {
@@ -34,8 +36,9 @@ class ServiceProvider {
     'location': location,
     'iconCodePoint': icon.codePoint,
     'colorValue': avatarColor.value,
-    'priceRange': priceRange,
     'availableTimes': availableTimes,
+    'description': description,
+    'experience': experience,
   };
 
   factory ServiceProvider.fromJson(Map<String, dynamic> json) => ServiceProvider(
@@ -47,7 +50,8 @@ class ServiceProvider {
     location: json['location'],
     icon: IconData(json['iconCodePoint'], fontFamily: 'MaterialIcons'),
     avatarColor: Color(json['colorValue']),
-    priceRange: json['priceRange'] ?? "\$\$", // Escaped dollars
     availableTimes: json['availableTimes'] != null ? List<String>.from(json['availableTimes']) : const [],
+    description: json['description'] ?? '',
+    experience: json['experience'] ?? 0,
   );
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../core/theme/app_colors.dart';
 import '../core/data/mock_data.dart';
 
@@ -16,122 +17,112 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     final settingsKeys = MockData.notificationSettings.keys.toList();
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF090909) : const Color(0xFFE0F2F1),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF161616) : Colors.white, 
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          if (!isDark) BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))
-                        ]
-                      ),
-                      child: Icon(Icons.arrow_back, size: 20, color: isDark ? Colors.white : Colors.black),
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.offWhite,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF161616) : Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  if (!isDark)
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'Notifications',
-                        style: TextStyle(
-                          fontSize: 20, 
-                          fontWeight: FontWeight.w800, 
-                          color: isDark ? Colors.white : Colors.black,
-                          letterSpacing: -0.5
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 40),
                 ],
               ),
+              child: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : AppColors.charcoalDark, size: 16),
             ),
-            Expanded(
-              child: Container(
-                width: double.infinity,
-                margin: const EdgeInsets.only(top: 20),
+          ),
+        ),
+        title: Text(
+          'Notifications',
+          style: GoogleFonts.nunito(
+            color: isDark ? Colors.white : AppColors.charcoalDark,
+            fontWeight: FontWeight.w900,
+            fontSize: 20,
+          ),
+        ),
+      ),
+      body: SafeArea(
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF111111) : Colors.white,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(40),
+              topRight: Radius.circular(40),
+            ),
+          ),
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            physics: const BouncingScrollPhysics(),
+            itemCount: settingsKeys.length,
+            itemBuilder: (context, index) {
+              final key = settingsKeys[index];
+              final value = MockData.notificationSettings[key]!;
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF161616) : Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(40),
-                    topRight: Radius.circular(40),
-                  ),
-                  boxShadow: [
-                    if (!isDark) BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, -5))
-                  ]
-                ),
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(40), topRight: Radius.circular(40)),
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(32),
-                    itemCount: settingsKeys.length,
-                    itemBuilder: (context, index) {
-                      final key = settingsKeys[index];
-                      final value = MockData.notificationSettings[key]!;
-                      
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 20),
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF262626) : Colors.grey[50],
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.02)),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    key,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                      color: isDark ? Colors.white : AppColors.textPrimaryLight,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _getSubtitle(key),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: isDark ? Colors.white38 : Colors.grey[600],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Switch.adaptive(
-                              value: value,
-                              onChanged: (v) {
-                                setState(() {
-                                  MockData.notificationSettings[key] = v;
-                                  MockData.saveSettings();
-                                });
-                              },
-                              activeColor: AppColors.primary,
-                              activeTrackColor: AppColors.primary.withOpacity(0.3),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                  color: isDark ? const Color(0xFF1A1A1A) : AppColors.offWhite,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.04),
                   ),
                 ),
-              ),
-            ),
-          ],
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            key,
+                            style: GoogleFonts.nunito(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                              color: isDark ? Colors.white : AppColors.charcoalDark,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _getSubtitle(key),
+                            style: GoogleFonts.nunito(
+                              fontSize: 12,
+                              color: isDark ? Colors.white60 : AppColors.mutedGray,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: value,
+                      onChanged: (v) {
+                        setState(() {
+                          MockData.notificationSettings[key] = v;
+                          MockData.saveSettings();
+                        });
+                      },
+                      activeColor: AppColors.deepTeal,
+                      activeTrackColor: AppColors.deepTeal.withOpacity(0.2),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -139,13 +130,13 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
 
   String _getSubtitle(String key) {
     switch (key) {
-      case 'General Notification': return 'Basic app alerts and messages';
-      case 'App Updates': return 'News about new features and versions';
-      case 'Service Reminders': return 'Reminders for your upcoming bookings';
-      case 'Payment Request': return 'Alerts for invoices and payments';
-      case 'Discount Available': return 'Exclusive deals and coupons';
-      case 'Promotions': return 'Marketing and special offers';
-      default: return 'Notification preference';
+      case 'General Notification': return 'Basic app alerts and notification messages';
+      case 'App Updates': return 'News about new features and major version rollouts';
+      case 'Service Reminders': return 'Reminders for your upcoming scheduled bookings';
+      case 'Payment Request': return 'Alerts for invoice completion and dispatch payments';
+      case 'Discount Available': return 'Exclusive coupons and localized service deals';
+      case 'Promotions': return 'Marketing offers, newsletters, and partner promos';
+      default: return 'Configure your notification alerts';
     }
   }
 }

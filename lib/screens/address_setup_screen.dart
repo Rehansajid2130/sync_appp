@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../core/theme/app_colors.dart';
-import '../core/theme/app_typography.dart';
-import 'main_navigation_screen.dart';
+import '../core/data/mock_data.dart';
+import 'new_ui/new_navigation_wrapper.dart';
 
 class AddressSetupScreen extends StatefulWidget {
   const AddressSetupScreen({super.key});
@@ -36,35 +37,39 @@ class _AddressSetupScreenState extends State<AddressSetupScreen> {
       builder: (BuildContext context) {
         return Dialog(
           backgroundColor: isDark ? const Color(0xFF161616) : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(32.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 64,
-                  height: 64,
+                  width: 80,
+                  height: 80,
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E3A1E) : AppColors.primaryLight,
+                    color: AppColors.deepTeal.withOpacity(0.08),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.location_on, color: AppColors.primary, size: 32),
+                  child: const Icon(Icons.location_on_rounded, color: AppColors.deepTeal, size: 40),
                 ),
                 const SizedBox(height: 24),
                 Text(
                   'Allow Location Access',
-                  style: AppTypography.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                  style: GoogleFonts.nunito(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white : AppColors.charcoalDark,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
                 Text(
                   'HelperHive needs your location to find the best service providers near you.',
-                  style: AppTypography.textTheme.bodyMedium?.copyWith(
-                    color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
+                  style: GoogleFonts.nunito(
+                    fontSize: 15,
+                    color: isDark ? Colors.white70 : AppColors.mutedGray,
+                    height: 1.5,
+                    fontWeight: FontWeight.w600,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -72,16 +77,19 @@ class _AddressSetupScreenState extends State<AddressSetupScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: ElevatedButton(
+                      child: TextButton(
                         onPressed: () => Navigator.pop(context),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isDark ? Colors.white10 : Colors.black.withOpacity(0.05),
-                          foregroundColor: isDark ? Colors.white : AppColors.textPrimaryLight,
-                          elevation: 0,
+                        style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                         ),
-                        child: const Text('Deny'),
+                        child: Text(
+                          'Deny',
+                          style: GoogleFonts.nunito(
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.mutedGray,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -89,12 +97,18 @@ class _AddressSetupScreenState extends State<AddressSetupScreen> {
                       child: ElevatedButton(
                         onPressed: () => Navigator.pop(context),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
+                          backgroundColor: AppColors.deepTeal,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                         ),
-                        child: const Text('Allow', style: TextStyle(color: Colors.white)),
+                        child: Text(
+                          'Allow',
+                          style: GoogleFonts.nunito(
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -107,93 +121,140 @@ class _AddressSetupScreenState extends State<AddressSetupScreen> {
     );
   }
 
+  void _saveAndProceed() async {
+    final text = _addressController.text.trim();
+    if (text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your home address.')),
+      );
+      return;
+    }
+
+    final newAddress = UserAddress(
+      title: 'My Home',
+      address: text,
+      latitude: -6.58913,
+      longitude: 106.7262,
+      isSelected: true,
+      isMain: true,
+    );
+
+    // Save to MockData and commit
+    MockData.addresses.clear();
+    MockData.addresses.add(newAddress);
+    await MockData.saveAddresses();
+
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const NewNavigationWrapper()),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final canPop = Navigator.canPop(context);
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.surfaceLight,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.offWhite,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16.0, top: 8, bottom: 8),
-          child: Container(
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF161616) : Colors.black.withOpacity(0.04),
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : Colors.black, size: 20),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
-        ),
+        automaticallyImplyLeading: false,
+        leading: canPop
+            ? Padding(
+                padding: const EdgeInsets.only(left: 16.0, top: 8, bottom: 8),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF161616) : Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      if (!isDark) 
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                    ],
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : AppColors.charcoalDark, size: 18),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ),
+              )
+            : null,
         title: Text(
-          'Your Address',
-          style: AppTypography.textTheme.titleLarge?.copyWith(
-            color: isDark ? Colors.white : AppColors.textPrimaryLight,
-            fontWeight: FontWeight.w600,
+          'Set Delivery Address',
+          style: GoogleFonts.nunito(
+            color: isDark ? Colors.white : AppColors.charcoalDark,
+            fontWeight: FontWeight.w900,
+            fontSize: 20,
           ),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0, top: 8, bottom: 8),
-            child: Container(
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF161616) : Colors.black.withOpacity(0.04),
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                icon: Icon(Icons.more_horiz, color: isDark ? Colors.white : Colors.black, size: 20),
-                onPressed: () {},
-              ),
-            ),
-          ),
-        ],
       ),
       body: Column(
         children: [
           Expanded(
             flex: 4,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              padding: const EdgeInsets.all(24.0),
               child: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF161616) : const Color(0xFFE5F0FF),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    if (!isDark) ...[
-                      Positioned(top: 40, left: -20, right: 100, child: Container(height: 8, color: Colors.white)),
-                      Positioned(top: 100, left: 50, bottom: -20, child: Container(width: 8, color: Colors.white)),
-                      Positioned(top: 150, left: -20, right: -20, child: Container(height: 12, color: const Color(0xFFFFE0B2))),
-                    ],
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const CircleAvatar(
-                            radius: 18,
-                            backgroundColor: Colors.white,
-                            child: Icon(Icons.person, color: AppColors.primary, size: 20),
-                          ),
-                        ),
-                        CustomPaint(
-                          size: const Size(12, 10),
-                          painter: TrianglePainter(color: AppColors.primary),
-                        ),
-                      ],
-                    ),
+                  color: isDark ? const Color(0xFF161616) : Colors.white,
+                  borderRadius: BorderRadius.circular(32),
+                  boxShadow: [
+                    if (!isDark)
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.03),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
                   ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(32),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Placeholder map UI
+                      Positioned.fill(
+                        child: Opacity(
+                          opacity: isDark ? 0.3 : 1.0,
+                          child: Image.network(
+                            'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s+0F686B(-73.99,40.70)/-73.99,40.70,12/600x400?access_token=pk.placeholder',
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              color: isDark ? const Color(0xFF222222) : const Color(0xFFE8F0F2),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.deepTeal,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.deepTeal.withOpacity(0.3),
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(Icons.person_pin_circle_rounded, color: Colors.white, size: 28),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -203,110 +264,103 @@ class _AddressSetupScreenState extends State<AddressSetupScreen> {
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF090909) : Colors.white,
+                color: isDark ? const Color(0xFF111111) : Colors.white,
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(32),
-                  topRight: Radius.circular(32),
+                  topLeft: Radius.circular(40),
+                  topRight: Radius.circular(40),
                 ),
               ),
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 32.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Center(
                       child: Container(
-                        width: 40,
-                        height: 4,
+                        width: 50,
+                        height: 5,
                         decoration: BoxDecoration(
-                          color: isDark ? Colors.white10 : Colors.black.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(2),
+                          color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 32),
                     Text(
-                      'Add your new home address',
-                      style: AppTypography.textTheme.titleLarge?.copyWith(
-                        color: isDark ? Colors.white : AppColors.textPrimaryLight,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 22,
+                      'Your New Home',
+                      style: GoogleFonts.nunito(
+                        color: isDark ? Colors.white : AppColors.charcoalDark,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 24,
                       ),
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'For confirmation to add your new home address',
-                      style: AppTypography.textTheme.bodyMedium?.copyWith(
-                        color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
+                      'Provide your detailed address so our experts can reach you easily.',
+                      style: GoogleFonts.nunito(
+                        color: isDark ? Colors.white70 : AppColors.mutedGray,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 32),
                     Text(
-                      'New Address',
-                      style: AppTypography.textTheme.labelMedium?.copyWith(
-                        color: isDark ? Colors.white : AppColors.textPrimaryLight,
-                        fontWeight: FontWeight.w600,
+                      'Complete Address',
+                      style: GoogleFonts.nunito(
+                        color: isDark ? Colors.white : AppColors.charcoalDark,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
                       ),
                     ),
                     const SizedBox(height: 12),
                     Container(
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF161616) : Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: isDark ? Colors.white10 : Colors.black.withOpacity(0.08)),
+                        color: isDark ? const Color(0xFF1A1A1A) : AppColors.offWhite,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.04),
+                          width: 1.5,
+                        ),
                       ),
                       child: TextField(
                         controller: _addressController,
                         maxLines: 4,
-                        maxLength: 200,
-                        style: AppTypography.textTheme.bodyLarge?.copyWith(
-                          color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                        style: GoogleFonts.nunito(
+                          color: isDark ? Colors.white : AppColors.charcoalDark,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
                         ),
                         decoration: InputDecoration(
-                          hintText: 'Input a new address',
-                          hintStyle: AppTypography.textTheme.bodyLarge?.copyWith(
-                            color: isDark ? Colors.white24 : AppColors.textMutedLight,
+                          hintText: 'e.g. 123 Street Name, Building No...',
+                          hintStyle: GoogleFonts.nunito(
+                            color: isDark ? Colors.white24 : AppColors.mutedGray.withOpacity(0.5),
                           ),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.all(16),
-                          counterStyle: AppTypography.textTheme.labelSmall?.copyWith(
-                            color: isDark ? Colors.white54 : AppColors.textMutedLight,
-                          ),
+                          contentPadding: const EdgeInsets.all(20),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 32),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () => Navigator.pop(context),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: isDark ? Colors.white10 : Colors.black.withOpacity(0.05),
-                              foregroundColor: isDark ? Colors.white : AppColors.textPrimaryLight,
-                              elevation: 0,
-                              padding: const EdgeInsets.symmetric(vertical: 18),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                            ),
-                            child: const Text('Cancel', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 40),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 58,
+                      child: ElevatedButton(
+                        onPressed: _saveAndProceed,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.deepTeal,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+                        ),
+                        child: Text(
+                          'Save & Continue',
+                          style: GoogleFonts.nunito(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 18,
+                            letterSpacing: 0.5,
                           ),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainNavigationScreen()));
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              elevation: 0,
-                              padding: const EdgeInsets.symmetric(vertical: 18),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                            ),
-                            child: const Text('Add Address', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
@@ -317,21 +371,4 @@ class _AddressSetupScreenState extends State<AddressSetupScreen> {
       ),
     );
   }
-}
-
-class TrianglePainter extends CustomPainter {
-  final Color color;
-  TrianglePainter({required this.color});
-  @override
-  void paint(Canvas canvas, Size size) {
-    var paint = Paint()..color = color..style = PaintingStyle.fill;
-    var path = Path();
-    path.moveTo(0, 0);
-    path.lineTo(size.width, 0);
-    path.lineTo(size.width / 2, size.height);
-    path.close();
-    canvas.drawPath(path, paint);
-  }
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

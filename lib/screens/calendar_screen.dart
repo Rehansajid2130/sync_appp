@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
-import '../core/theme/app_colors.dart';
-import '../core/data/mock_data.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import '../core/theme/app_colors.dart';
+import '../widgets/new_ui/weekly_date_ribbon.dart';
+import '../widgets/new_ui/event_agenda_card.dart';
+import '../widgets/new_ui/radial_time_picker.dart';
+import '../core/data/mock_data.dart';
+import '../models/service_provider.dart';
 
 class CalendarScreen extends StatefulWidget {
-  final bool isProvider; // Reuse flag
-
+  final bool isProvider;
   const CalendarScreen({super.key, this.isProvider = false});
 
   @override
@@ -14,61 +18,126 @@ class CalendarScreen extends StatefulWidget {
 
 class _CalendarScreenState extends State<CalendarScreen> {
   DateTime _selectedDate = DateTime.now();
+  
+  // Custom mock conflict days list: e.g. Day 8 and 12 have conflicts
+  // Let's dynamically add a conflict on today's day number to demonstrate it!
+  late List<int> _conflictDays;
+
+  @override
+  void initState() {
+    super.initState();
+    final today = DateTime.now().day;
+    _conflictDays = [today, today + 2, today - 1];
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final todayDayNumber = DateTime.now().day;
     
-    // Filter bookings for the selected date
-    // If provider view, show all jobs for this date (simulating provider's schedule)
-    // If client view, show their bookings
-    final dailyBookings = MockData.bookings.where((b) => 
-      b.date.day == _selectedDate.day && 
-      b.date.month == _selectedDate.month && 
-      b.date.year == _selectedDate.year &&
-      b.status != 'Cancelled'
-    ).toList();
+    final bool isConflictDay = _selectedDate.day == todayDayNumber || 
+                               _selectedDate.day == (todayDayNumber - 1);
+
+    final String dayFormatted = DateFormat('MMM d • EEEE').format(_selectedDate);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: isDark ? const Color(0xFF090909) : Colors.white,
       body: SafeArea(
         bottom: false,
-        child: Column(
+        child: Stack(
           children: [
-            _buildHeader(isDark),
-            const SizedBox(height: 20),
-            _buildDateStrip(isDark),
-            const SizedBox(height: 24),
-            Expanded(
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF090909) : Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(32),
-                    topRight: Radius.circular(32),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.isProvider ? 'Assigned Jobs' : 'Plan for Today',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: isDark ? Colors.white : Colors.black,
+            SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // App Bar Title
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8.0),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF161616) : AppColors.surfaceLightGray,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.calendar_today,
+                          color: isDark ? Colors.white : AppColors.textDark,
+                          size: 18,
+                        ),
                       ),
+                      const SizedBox(width: 12),
+                      Text(
+                        "Schedule",
+                        style: GoogleFonts.nunito(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? Colors.white : AppColors.textDark,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // 2. Horizontal Weekly Date Ribbon
+                  WeeklyDateRibbon(
+                    selectedDate: _selectedDate,
+                    conflictDays: _conflictDays,
+                    onDateSelected: (date) {
+                      setState(() {
+                        _selectedDate = date;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 28),
+
+                  // 3. Chronological Agenda Timeline (Vertical List)
+                  // Header details
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        dayFormatted,
+                        style: GoogleFonts.nunito(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? Colors.white : AppColors.textDark,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: isConflictDay
+                              ? AppColors.alertOrange.withOpacity(0.1)
+                              : AppColors.secondaryGreen.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          isConflictDay ? "Conflict Day" : "Clear Schedule",
+                          style: GoogleFonts.nunito(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: isConflictDay ? AppColors.alertOrange : AppColors.deepTeal,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    isConflictDay 
+                        ? "Scheduling conflicts identified. Tap cards to re-negotiate."
+                        : "Easy to negotiate and plan. All events look healthy.",
+                    style: GoogleFonts.nunito(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textMutedGray,
                     ),
-                    const SizedBox(height: 20),
-                    Expanded(
-                      child: dailyBookings.isEmpty
-                           ? _buildEmptyState(isDark)
-                           : _buildScheduleList(dailyBookings, isDark),
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildBookingsList(),
+                ],
               ),
             ),
           ],
@@ -77,136 +146,86 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  Widget _buildHeader(bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: isDark ? const Color(0xFF161616) : Colors.black.withOpacity(0.05), shape: BoxShape.circle),
-            child: Icon(Icons.calendar_month, color: isDark ? Colors.white : Colors.black, size: 20),
+  Widget _buildBookingsList() {
+    final bookingsForDay = MockData.bookings.where((b) {
+      return b.date.year == _selectedDate.year &&
+             b.date.month == _selectedDate.month &&
+             b.date.day == _selectedDate.day &&
+             b.status != 'Cancelled';
+    }).toList();
+
+    if (bookingsForDay.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 40),
+        child: Center(
+          child: Text(
+            "No bookings scheduled for this day.",
+            style: GoogleFonts.nunito(
+              color: AppColors.textMutedGray,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-          const SizedBox(width: 12),
-          Text(
-            widget.isProvider ? 'My Schedule' : 'Calendar',
-            style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 24, fontWeight: FontWeight.w800),
-          ),
-          const Spacer(),
-          if (!widget.isProvider) _buildCircleButton(Icons.add, isDark),
-        ],
-      ),
+        ),
+      );
+    }
+
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: bookingsForDay.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 16),
+      itemBuilder: (context, index) {
+        final booking = bookingsForDay[index];
+        return EventAgendaCard(
+          time: booking.time,
+          title: '${booking.serviceName} with ${widget.isProvider ? booking.clientName : booking.providerName}',
+          status: booking.status,
+          hasConflict: false, // We'll ignore real conflicts for now
+          onCancel: () {
+            setState(() {
+              MockData.cancelBooking(booking.id);
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Booking cancelled.")),
+            );
+          },
+          onReschedule: () {
+            _openRadialTimePicker(booking);
+          },
+        );
+      },
     );
   }
 
-  Widget _buildCircleButton(IconData icon, bool isDark) {
-    return Container(
-      width: 40, height: 40,
-      decoration: BoxDecoration(color: isDark ? const Color(0xFF161616) : Colors.white, shape: BoxShape.circle, border: Border.all(color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05))),
-      child: Icon(icon, color: isDark ? Colors.white : Colors.black, size: 20),
-    );
-  }
+  void _openRadialTimePicker(Booking booking) {
+    int hour = 12;
+    String period = "PM";
+    try {
+      final parts = booking.time.split(RegExp(r'[: ]'));
+      hour = int.parse(parts[0]);
+      period = parts.length > 2 ? parts[2] : "PM";
+    } catch (_) {}
 
-  Widget _buildDateStrip(bool isDark) {
-    return SizedBox(
-      height: 90,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        itemCount: 14,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
-        itemBuilder: (context, index) {
-          final date = DateTime.now().add(Duration(days: index - 2));
-          final isSelected = date.day == _selectedDate.day && date.month == _selectedDate.month;
-          return GestureDetector(
-            onTap: () => setState(() => _selectedDate = date),
-            child: Container(
-              width: 60,
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : (isDark ? const Color(0xFF161616) : const Color(0xFFF1F4F8)),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(DateFormat('MMM').format(date), style: TextStyle(color: isSelected ? Colors.white70 : Colors.grey, fontSize: 12)),
-                  const SizedBox(height: 4),
-                  Text(date.day.toString(), style: TextStyle(color: isSelected ? Colors.white : (isDark ? Colors.white : Colors.black), fontSize: 18, fontWeight: FontWeight.w800)),
-                  const SizedBox(height: 4),
-                  Text(DateFormat('E').format(date), style: TextStyle(color: isSelected ? Colors.white70 : Colors.grey, fontSize: 12)),
-                ],
-              ),
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => RadialTimePicker(
+        initialHour: hour,
+        initialPeriod: period,
+        onTimeSelected: (timeOfDay) {
+          final newTime = timeOfDay.format(context);
+          setState(() {
+            MockData.rescheduleBooking(booking.id, newTime);
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Rescheduled to $newTime"),
+              backgroundColor: AppColors.deepTeal,
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildScheduleList(List<Booking> bookings, bool isDark) {
-    return ListView.separated(
-      physics: const BouncingScrollPhysics(),
-      itemCount: bookings.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 16),
-      itemBuilder: (context, index) => _buildScheduleCard(bookings[index], isDark),
-    );
-  }
-
-  Widget _buildScheduleCard(Booking booking, bool isDark) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161616) : Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 50, height: 50,
-            decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
-            child: Icon(booking.icon, color: AppColors.primary, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(booking.serviceName, style: TextStyle(fontWeight: FontWeight.w700, color: isDark ? Colors.white : Colors.black)),
-                const SizedBox(height: 4),
-                Text(
-                  widget.isProvider ? 'Client: ${booking.clientName}' : 'Provider: ${booking.providerName}',
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(booking.time, style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 12)),
-              const SizedBox(height: 4),
-              const Icon(Icons.more_vert, size: 18, color: Colors.grey),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(bool isDark) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.event_busy, size: 60, color: Colors.grey),
-          const SizedBox(height: 16),
-          Text(
-            widget.isProvider ? 'No jobs assigned' : 'No services scheduled',
-            style: TextStyle(color: isDark ? Colors.white54 : Colors.grey, fontWeight: FontWeight.w600),
-          ),
-        ],
       ),
     );
   }

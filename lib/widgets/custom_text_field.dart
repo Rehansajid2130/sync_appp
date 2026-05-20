@@ -8,6 +8,11 @@ class CustomTextField extends StatelessWidget {
   final IconData prefixIcon;
   final bool isPassword;
   final Widget? suffixIcon;
+  final TextEditingController? controller;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onChanged;
+  final String? Function(String?)? validator;
 
   const CustomTextField({
     super.key,
@@ -16,6 +21,11 @@ class CustomTextField extends StatelessWidget {
     required this.prefixIcon,
     this.isPassword = false,
     this.suffixIcon,
+    this.controller,
+    this.keyboardType,
+    this.textInputAction,
+    this.onChanged,
+    this.validator,
   });
 
   @override
@@ -31,8 +41,13 @@ class CustomTextField extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        TextField(
+        TextFormField(
+          controller: controller,
           obscureText: isPassword,
+          keyboardType: keyboardType,
+          textInputAction: textInputAction,
+          onChanged: onChanged,
+          validator: validator,
           decoration: InputDecoration(
             hintText: hintText,
             hintStyle: AppTypography.textTheme.bodyMedium?.copyWith(
@@ -64,6 +79,14 @@ class CustomTextField extends StatelessWidget {
                 color: AppColors.primary,
                 width: 2,
               ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(32),
+              borderSide: BorderSide(color: Colors.red.shade400, width: 1.5),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(32),
+              borderSide: BorderSide(color: Colors.red.shade600, width: 2),
             ),
           ),
         ),

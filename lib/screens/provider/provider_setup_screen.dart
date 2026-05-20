@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/data/mock_data.dart';
+import '../../core/services/auth_service.dart';
+import '../../core/services/storage_service.dart';
 import '../../models/service_provider.dart';
 import 'provider_navigation_screen.dart';
 
@@ -12,158 +15,132 @@ class ProviderSetupScreen extends StatefulWidget {
 }
 
 class _ProviderSetupScreenState extends State<ProviderSetupScreen> {
-  final _businessNameController = TextEditingController();
-  final _bioController = TextEditingController();
-  String _selectedCategory = 'Cleaning';
-  final List<String> _categories = ['Cleaning', 'Plumbing', 'Electrician', 'Carpentry', 'Gardening'];
-  final List<String> _availableSlots = ['08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '06:00 PM', '07:00 PM', '08:00 PM'];
-  final List<String> _selectedTimes = [];
-
-  void _finishSetup() async {
-    if (_businessNameController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your business name')),
-      );
-      return;
-    }
-    if (_selectedTimes.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select your available timings')),
-      );
-      return;
-    }
-
-    final newProvider = ServiceProvider(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: _businessNameController.text,
-      category: _selectedCategory,
-      rating: 5.0,
-      reviewCount: 0,
-      location: 'New York, US',
-      icon: _getCategoryIcon(_selectedCategory),
-      avatarColor: AppColors.primary,
-      availableTimes: _selectedTimes,
-    );
-
-    await MockData.addProvider(newProvider);
-
-    if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const ProviderNavigationScreen()),
-      );
-    }
-  }
-
-  IconData _getCategoryIcon(String cat) {
-    switch (cat) {
-      case 'Cleaning': return Icons.cleaning_services;
-      case 'Plumbing': return Icons.plumbing;
-      case 'Electrician': return Icons.electrical_services;
-      case 'Carpentry': return Icons.handyman;
-      case 'Gardening': return Icons.grass;
-      default: return Icons.work;
-    }
-  }
+  final TextEditingController _businessNameController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  String _selectedCategory = "Cleaning";
+  final List<String> _categories = ["Cleaning", "Repair", "Plumbing", "Electrical"];
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.offWhite,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : AppColors.charcoalDark),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Setup Business',
+          style: GoogleFonts.nunito(
+            color: isDark ? Colors.white : AppColors.charcoalDark,
+            fontWeight: FontWeight.w900,
+            fontSize: 20,
+          ),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(32),
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.1), shape: BoxShape.circle),
-                child: const Icon(Icons.business_center, color: AppColors.primary, size: 40),
-              ),
-              const SizedBox(height: 32),
               Text(
-                'Become a Helper',
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: isDark ? Colors.white : Colors.black),
+                "Create Your Storefront",
+                style: GoogleFonts.nunito(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: isDark ? Colors.white : AppColors.charcoalDark,
+                ),
               ),
               const SizedBox(height: 12),
               Text(
-                'Tell us about your business to start receiving job requests.',
-                style: TextStyle(color: isDark ? Colors.white70 : Colors.black54, fontSize: 16),
+                "Provide details about your business to get started.",
+                style: GoogleFonts.nunito(
+                  fontSize: 15,
+                  color: isDark ? Colors.white70 : AppColors.mutedGray,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 40),
-              _buildFieldLabel('Business Name', isDark),
-              TextField(
-                controller: _businessNameController,
-                style: TextStyle(color: isDark ? Colors.white : Colors.black),
-                decoration: _inputDecoration('e.g. Pro Cleaners NY', isDark),
-              ),
+
+              _buildMorphicInput(label: "Business Name", controller: _businessNameController, isDark: isDark),
               const SizedBox(height: 24),
-              _buildFieldLabel('Primary Service Category', isDark),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF161616) : Colors.grey[100],
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _selectedCategory,
-                    isExpanded: true,
-                    dropdownColor: isDark ? const Color(0xFF161616) : Colors.white,
-                    style: TextStyle(color: isDark ? Colors.white : Colors.black, fontWeight: FontWeight.w600),
-                    items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
-                    onChanged: (v) => setState(() => _selectedCategory = v!),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              _buildFieldLabel('Brief Biography', isDark),
-              TextField(
-                controller: _bioController,
-                maxLines: 4,
-                style: TextStyle(color: isDark ? Colors.white : Colors.black),
-                decoration: _inputDecoration('Tell clients why they should hire you...', isDark),
-              ),
-              const SizedBox(height: 24),
-              _buildFieldLabel('Available Timings', isDark),
+              
+              Text("Service Category", style: GoogleFonts.nunito(fontWeight: FontWeight.w800, color: isDark ? Colors.white70 : AppColors.charcoalDark)),
+              const SizedBox(height: 12),
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _availableSlots.map((time) {
-                  final isSelected = _selectedTimes.contains(time);
-                  return ChoiceChip(
-                    label: Text(time),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() {
-                        if (selected) {
-                          _selectedTimes.add(time);
-                        } else {
-                          _selectedTimes.remove(time);
-                        }
-                      });
-                    },
-                    selectedColor: AppColors.primary,
-                    labelStyle: TextStyle(color: isSelected ? Colors.white : (isDark ? Colors.white : Colors.black)),
-                    backgroundColor: isDark ? const Color(0xFF161616) : Colors.grey[100],
-                  );
-                }).toList(),
+                spacing: 12,
+                children: _categories.map((cat) => FilterChip(
+                  label: Text(cat, style: GoogleFonts.nunito(fontWeight: FontWeight.w700)),
+                  selected: _selectedCategory == cat,
+                  selectedColor: AppColors.deepTeal.withOpacity(0.2),
+                  checkmarkColor: AppColors.deepTeal,
+                  onSelected: (val) => setState(() => _selectedCategory = cat),
+                )).toList(),
               ),
-              const SizedBox(height: 48),
+              const SizedBox(height: 24),
+
+              _buildMorphicInput(label: "Description", controller: _descriptionController, maxLines: 4, isDark: isDark),
+              
+              const SizedBox(height: 60),
               SizedBox(
                 width: double.infinity,
-                height: 60,
+                height: 58,
                 child: ElevatedButton(
-                  onPressed: _finishSetup,
+                  onPressed: () async {
+                    final user = AuthService.currentUser;
+                    final providerId = user?.uid ?? 'p_${DateTime.now().millisecondsSinceEpoch}';
+                    final providerName = _businessNameController.text.trim().isNotEmpty
+                        ? _businessNameController.text.trim()
+                        : (user?.name ?? 'My Business');
+
+                    final newProvider = ServiceProvider(
+                      id: providerId,
+                      name: providerName,
+                      category: _selectedCategory,
+                      rating: 5.0,
+                      reviewCount: 0,
+                      location: 'Lahore, Pakistan',
+                      icon: _getCategoryIcon(_selectedCategory),
+                      avatarColor: const Color(0xFF91CBAE),
+                      availableTimes: const ['08:00 AM', '10:00 AM', '01:00 PM', '03:00 PM'],
+                      description: _descriptionController.text.trim().isNotEmpty
+                          ? _descriptionController.text.trim()
+                          : 'No biography details provided.',
+                      experience: 1,
+                    );
+
+                    // Register provider in MockData (persists storefront)
+                    await MockData.registerProvider(newProvider);
+
+                    // Update user as provider in MockData
+                    MockData.isUserRegisteredAsProvider = true;
+                    // Update user in AuthService
+                    await AuthService.updateProfile(isProvider: true);
+                    
+                    // Persist active role
+                    await StorageService.saveData('activeRole', 'Provider');
+
+                    if (context.mounted) {
+                      Navigator.pushAndRemoveUntil(
+                        context, 
+                        MaterialPageRoute(builder: (_) => const ProviderNavigationScreen()), 
+                        (route) => false,
+                      );
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    backgroundColor: AppColors.deepTeal,
                     elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
                   ),
-                  child: const Text('Start Providing Services', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: Text("Launch Business", style: GoogleFonts.nunito(fontWeight: FontWeight.w900, fontSize: 18, color: Colors.white)),
                 ),
               ),
             ],
@@ -173,21 +150,43 @@ class _ProviderSetupScreenState extends State<ProviderSetupScreen> {
     );
   }
 
-  Widget _buildFieldLabel(String label, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 10),
-      child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.grey)),
-    );
+  IconData _getCategoryIcon(String category) {
+    switch (category) {
+      case 'Cleaning':
+        return Icons.cleaning_services_outlined;
+      case 'Repair':
+        return Icons.handyman_outlined;
+      case 'Plumbing':
+        return Icons.plumbing;
+      case 'Electrical':
+        return Icons.electrical_services;
+      default:
+        return Icons.storefront_rounded;
+    }
   }
 
-  InputDecoration _inputDecoration(String hint, bool isDark) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-      filled: true,
-      fillColor: isDark ? const Color(0xFF161616) : Colors.grey[100],
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
-      contentPadding: const EdgeInsets.all(20),
+  Widget _buildMorphicInput({required String label, required TextEditingController controller, int maxLines = 1, required bool isDark}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 8, bottom: 8),
+          child: Text(label, style: GoogleFonts.nunito(fontWeight: FontWeight.w800, color: isDark ? Colors.white70 : AppColors.charcoalDark)),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1A1A1A) : AppColors.offWhite,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: isDark ? Colors.white10 : Colors.black.withOpacity(0.04)),
+          ),
+          child: TextField(
+            controller: controller,
+            maxLines: maxLines,
+            style: GoogleFonts.nunito(fontWeight: FontWeight.w700, color: isDark ? Colors.white : AppColors.charcoalDark),
+            decoration: const InputDecoration(border: InputBorder.none, contentPadding: EdgeInsets.all(20)),
+          ),
+        ),
+      ],
     );
   }
 }

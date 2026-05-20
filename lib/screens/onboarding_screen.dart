@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../core/theme/app_colors.dart';
 import '../core/services/storage_service.dart';
-import 'main_navigation_screen.dart';
+import 'new_ui/new_auth_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -36,7 +37,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.offWhite,
       body: Column(
         children: [
           Expanded(
@@ -60,21 +61,35 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 200, height: 200,
-            decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.1), shape: BoxShape.circle),
-            child: Center(child: Text(_onboardingData[index]['image']!, style: const TextStyle(fontSize: 80))),
+            width: 240, height: 240,
+            decoration: BoxDecoration(
+              color: AppColors.deepTeal.withOpacity(0.08), 
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.deepTeal.withOpacity(0.1), width: 1),
+            ),
+            child: Center(child: Text(_onboardingData[index]['image']!, style: const TextStyle(fontSize: 100))),
           ),
           const SizedBox(height: 60),
           Text(
             _onboardingData[index]['title']!,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: isDark ? Colors.white : Colors.black),
+            style: GoogleFonts.nunito(
+              fontSize: 32, 
+              fontWeight: FontWeight.w900, 
+              color: isDark ? Colors.white : AppColors.charcoalDark,
+              height: 1.1,
+            ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           Text(
             _onboardingData[index]['description']!,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16, color: isDark ? Colors.white70 : Colors.grey[600], height: 1.5),
+            style: GoogleFonts.nunito(
+              fontSize: 17, 
+              color: isDark ? Colors.white70 : AppColors.mutedGray, 
+              height: 1.6,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),
@@ -94,8 +109,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 duration: const Duration(milliseconds: 300),
                 margin: const EdgeInsets.only(right: 8),
                 height: 8,
-                width: _currentPage == index ? 24 : 8,
-                decoration: BoxDecoration(color: _currentPage == index ? AppColors.primary : Colors.grey.withOpacity(0.3), borderRadius: BorderRadius.circular(4)),
+                width: _currentPage == index ? 32 : 8,
+                decoration: BoxDecoration(
+                  color: _currentPage == index ? AppColors.deepTeal : AppColors.mutedGray.withOpacity(0.3), 
+                  borderRadius: BorderRadius.circular(4),
+                ),
               ),
             ),
           ),
@@ -108,11 +126,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 if (_currentPage == _onboardingData.length - 1) {
                   _completeOnboarding();
                 } else {
-                  _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
+                  _pageController.nextPage(
+                    duration: const Duration(milliseconds: 400),
+                    curve: Curves.easeInOut,
+                  );
                 }
               },
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32))),
-              child: Text(_currentPage == _onboardingData.length - 1 ? 'Get Started' : 'Next', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.deepTeal,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+                elevation: 0,
+              ),
+              child: Text(
+                _currentPage == _onboardingData.length - 1 ? 'Get Started' : 'Continue',
+                style: GoogleFonts.nunito(fontSize: 18, fontWeight: FontWeight.w800),
+              ),
             ),
           ),
         ],
@@ -123,7 +152,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void _completeOnboarding() async {
     await StorageService.setFirstTime(false);
     if (mounted) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainNavigationScreen()));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const NewAuthScreen()),
+      );
     }
   }
 }

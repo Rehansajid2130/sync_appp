@@ -139,3 +139,6 @@ migrate_working_dir/
 
 # MCP / AI tool config (local only)
 .mcp.json
+ProjectSync/
+atifacts/
+

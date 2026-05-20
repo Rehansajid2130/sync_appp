@@ -1,91 +1,137 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../core/theme/app_colors.dart';
-import 'main_navigation_screen.dart';
+import 'new_ui/new_navigation_wrapper.dart';
 
 class BookingSuccessScreen extends StatelessWidget {
-  const BookingSuccessScreen({super.key});
+  final bool isPending;
+  const BookingSuccessScreen({super.key, this.isPending = false});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.offWhite,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 40.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
+              // Morphic Success Icon
               Container(
-                width: 140,
-                height: 140,
+                width: 160,
+                height: 160,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.pastelGreen.withOpacity(0.3),
                   shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.pastelGreen, width: 2),
                 ),
-                child: const Center(
-                  child: Icon(Icons.check_circle, color: AppColors.primary, size: 80),
+                child: Center(
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: AppColors.pastelGreen,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.green.withOpacity(0.2),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(Icons.check_rounded, color: Color(0xFF1A6B3C), size: 60),
+                  ),
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 48),
               Text(
-                'Booking Successful!',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  color: isDark ? Colors.white : Colors.black,
+                isPending ? 'Request Sent!' : 'Booking Confirmed!',
+                style: GoogleFonts.nunito(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w900,
+                  color: isDark ? Colors.white : AppColors.charcoalDark,
+                  letterSpacing: -0.5,
                 ),
               ),
               const SizedBox(height: 16),
               Text(
-                'Your service has been scheduled.\nThe provider will contact you shortly.',
+                isPending
+                    ? 'Your service request has been sent successfully. The provider will review and approve it shortly.'
+                    : 'Great news! Your booking is confirmed. Our expert professional is getting ready to serve you.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: GoogleFonts.nunito(
                   fontSize: 16,
-                  color: isDark ? Colors.white70 : Colors.grey[600],
-                  height: 1.5,
+                  color: isDark ? Colors.white70 : AppColors.mutedGray,
+                  height: 1.6,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Navigate to Bookings tab (index 1)
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => const MainNavigationScreen(initialIndex: 1)),
-                      (route) => false,
-                    );
-                    // This is a bit tricky since MainNavigationScreen needs to know which tab to show.
-                    // Usually we handle this with a global state or a parameter.
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
-                  ),
-                  child: const Text('View My Bookings', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16)),
+              // Bottom Action Panel
+              Container(
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF111111) : Colors.white,
+                  borderRadius: BorderRadius.circular(32),
+                  boxShadow: [
+                    if (!isDark)
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => const MainNavigationScreen()),
-                      (route) => false,
-                    );
-                  },
-                  style: OutlinedButton.styleFrom(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
-                    side: BorderSide(color: isDark ? Colors.white24 : Colors.black12),
-                  ),
-                  child: Text('Back to Home', style: TextStyle(color: isDark ? Colors.white : Colors.black, fontWeight: FontWeight.w700, fontSize: 16)),
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      height: 58,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Navigate to NewNavigationWrapper which uses NewHomeDashboard
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => const NewNavigationWrapper()),
+                            (route) => false,
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.deepTeal,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                        ),
+                        child: Text(
+                          'Done, Back Home',
+                          style: GoogleFonts.nunito(fontWeight: FontWeight.w900, fontSize: 18),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextButton(
+                      onPressed: () {
+                        // For now back to home, but could navigate to specific booking details
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => const NewNavigationWrapper()),
+                          (route) => false,
+                        );
+                      },
+                      child: Text(
+                        'View Booking Status',
+                        style: GoogleFonts.nunito(
+                          color: AppColors.deepTeal,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

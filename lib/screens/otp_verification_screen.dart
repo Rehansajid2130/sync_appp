@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../core/theme/app_colors.dart';
-import '../core/theme/app_typography.dart';
 import 'create_new_password_screen.dart';
-import 'email_login_screen.dart';
+import 'new_ui/new_auth_screen.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String email;
@@ -11,7 +11,7 @@ class OtpVerificationScreen extends StatefulWidget {
 
   const OtpVerificationScreen({
     super.key, 
-    this.email = 'fajar***@gmail.com', // Default placeholder from design
+    this.email = 'fajar***@gmail.com',
     this.isFromSignup = false,
   });
 
@@ -40,12 +40,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   @override
   void dispose() {
-    for (var node in _focusNodes) {
-      node.dispose();
-    }
-    for (var controller in _controllers) {
-      controller.dispose();
-    }
+    for (var node in _focusNodes) node.dispose();
+    for (var controller in _controllers) controller.dispose();
     super.dispose();
   }
 
@@ -59,138 +55,131 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.offWhite,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leadingWidth: 80,
+        centerTitle: true,
         leading: Padding(
-          padding: const EdgeInsets.only(left: 24.0, top: 8, bottom: 8),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.05),
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
-              onPressed: () => Navigator.pop(context),
+          padding: const EdgeInsets.all(8.0),
+          child: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF161616) : Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  if (!isDark)
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                ],
+              ),
+              child: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : AppColors.charcoalDark, size: 16),
             ),
           ),
         ),
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-                shape: BoxShape.circle,
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.all_inclusive,
-                  color: Colors.white,
-                  size: 16,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'HelperHive',
-              style: AppTypography.textTheme.titleLarge?.copyWith(
-                color: AppColors.primary,
-              ),
-            ),
-          ],
+        title: Text(
+          'Verification',
+          style: GoogleFonts.nunito(
+            color: isDark ? Colors.white : AppColors.charcoalDark,
+            fontWeight: FontWeight.w900,
+            fontSize: 20,
+          ),
         ),
-        centerTitle: true,
       ),
       body: SafeArea(
         child: Column(
           children: [
             Expanded(
               child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
                 child: Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
+                    color: isDark ? const Color(0xFF111111) : Colors.white,
+                    borderRadius: BorderRadius.circular(40),
                     boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.02),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
+                      if (!isDark)
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
                     ],
                   ),
                   child: Column(
                     children: [
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: AppColors.deepTeal.withOpacity(0.08),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.mark_email_read_rounded, color: AppColors.deepTeal, size: 40),
+                      ),
+                      const SizedBox(height: 32),
                       Text(
-                        'OTP Code Verification',
-                        style: AppTypography.textTheme.displayLarge?.copyWith(
-                          color: AppColors.textPrimaryLight,
+                        'Enter Verification Code',
+                        style: GoogleFonts.nunito(
                           fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? Colors.white : AppColors.charcoalDark,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       Text(
-                        'We have sent an OTP code to your email\n${widget.email}.',
+                        'We have sent an OTP code to\n${widget.email}.',
                         textAlign: TextAlign.center,
-                        style: AppTypography.textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondaryLight,
+                        style: GoogleFonts.nunito(
+                          color: isDark ? Colors.white70 : AppColors.mutedGray,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
                           height: 1.5,
                         ),
                       ),
-                      const SizedBox(height: 32),
-                      
-                      // OTP Input Row
+                      const SizedBox(height: 40),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: List.generate(4, (index) {
-                          return _buildOtpBox(index);
-                        }),
+                        children: List.generate(4, (index) => _buildOtpBox(index, isDark)),
                       ),
-                      const SizedBox(height: 16),
                     ],
                   ),
                 ),
               ),
             ),
             
-            // Bottom Confirm Button
             Padding(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
               child: SizedBox(
                 width: double.infinity,
-                height: 52,
+                height: 58,
                 child: ElevatedButton(
                   onPressed: () {
                     if (widget.isFromSignup) {
-                      _showSuccessDialog(context);
+                      _showSuccessDialog(context, isDark);
                     } else {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const CreateNewPasswordScreen()),
+                        MaterialPageRoute(builder: (_) => const CreateNewPasswordScreen()),
                       );
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary, // Using solid primary green from design
+                    backgroundColor: AppColors.deepTeal,
                     foregroundColor: Colors.white,
                     elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(32),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
                   ),
                   child: Text(
-                    'Confirm',
-                    style: AppTypography.textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
+                    'Verify Code',
+                    style: GoogleFonts.nunito(fontWeight: FontWeight.w900, fontSize: 18),
                   ),
                 ),
               ),
@@ -201,128 +190,82 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     );
   }
 
-  Widget _buildOtpBox(int index) {
+  Widget _buildOtpBox(int index, bool isDark) {
     bool isFocused = _currentFocusedIndex == index;
     bool hasText = _controllers[index].text.isNotEmpty;
 
     return Container(
-      width: 60,
-      height: 60,
+      width: 65,
+      height: 65,
       decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle, // Makes the box completely circular as in design
+        color: isDark ? const Color(0xFF1A1A1A) : AppColors.offWhite,
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isFocused || hasText
-              ? AppColors.primary
-              : AppColors.textMutedLight.withOpacity(0.3),
-          width: isFocused ? 1.5 : 1.0,
+              ? AppColors.deepTeal
+              : (isDark ? Colors.white10 : Colors.black.withOpacity(0.04)),
+          width: 2,
         ),
       ),
-      child: Center(
-        child: TextField(
-          controller: _controllers[index],
-          focusNode: _focusNodes[index],
-          keyboardType: TextInputType.number,
-          textAlign: TextAlign.center,
-          maxLength: 1,
-          style: AppTypography.textTheme.titleLarge?.copyWith(
-            color: AppColors.textPrimaryLight,
-          ),
-          inputFormatters: [
-            FilteringTextInputFormatter.digitsOnly,
-          ],
-          decoration: const InputDecoration(
-            counterText: '', // Hide the max length counter
-            border: InputBorder.none,
-            focusedBorder: InputBorder.none,
-            enabledBorder: InputBorder.none,
-          ),
-          onChanged: (value) => _onChanged(value, index),
+      child: TextField(
+        controller: _controllers[index],
+        focusNode: _focusNodes[index],
+        keyboardType: TextInputType.number,
+        textAlign: TextAlign.center,
+        maxLength: 1,
+        style: GoogleFonts.nunito(
+          fontSize: 20,
+          fontWeight: FontWeight.w900,
+          color: isDark ? Colors.white : AppColors.charcoalDark,
         ),
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        decoration: const InputDecoration(counterText: '', border: InputBorder.none),
+        onChanged: (value) => _onChanged(value, index),
       ),
     );
   }
 
-  void _showSuccessDialog(BuildContext context) {
+  void _showSuccessDialog(BuildContext context, bool isDark) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
+          backgroundColor: isDark ? const Color(0xFF161616) : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
           child: Padding(
-            padding: const EdgeInsets.all(32.0),
+            padding: const EdgeInsets.all(40.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
                   width: 100,
                   height: 100,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withOpacity(0.2),
-                        blurRadius: 20,
-                        spreadRadius: 10,
-                      )
-                    ],
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.check_circle_outline,
-                      color: Colors.white,
-                      size: 48,
-                    ),
-                  ),
+                  decoration: BoxDecoration(color: AppColors.pastelGreen, shape: BoxShape.circle),
+                  child: const Icon(Icons.check_rounded, color: Color(0xFF1A6B3C), size: 50),
                 ),
                 const SizedBox(height: 32),
-                Text(
-                  'Successful',
-                  style: AppTypography.textTheme.displayLarge?.copyWith(
-                    color: AppColors.textPrimaryLight,
-                    fontSize: 28,
-                  ),
-                ),
+                Text('Successful', style: GoogleFonts.nunito(fontSize: 28, fontWeight: FontWeight.w900, color: isDark ? Colors.white : AppColors.charcoalDark)),
                 const SizedBox(height: 12),
                 Text(
-                  'Your account has been successfully to registration',
+                  'Your account has been successfully registered.',
                   textAlign: TextAlign.center,
-                  style: AppTypography.textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondaryLight,
-                    height: 1.5,
-                  ),
+                  style: GoogleFonts.nunito(color: isDark ? Colors.white70 : AppColors.mutedGray, fontSize: 15, fontWeight: FontWeight.w600, height: 1.5),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 40),
                 SizedBox(
                   width: double.infinity,
-                  height: 52,
+                  height: 58,
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(builder: (context) => const EmailLoginScreen()),
+                        MaterialPageRoute(builder: (_) => const NewAuthScreen()),
                         (route) => false,
                       );
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(32),
-                      ),
-                    ),
-                    child: Text(
-                      'Continue to Login',
-                      style: AppTypography.textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
+                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.deepTeal, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)), elevation: 0),
+                    child: Text('Continue to Login', style: GoogleFonts.nunito(fontWeight: FontWeight.w900, fontSize: 18, color: Colors.white)),
                   ),
                 ),
               ],
